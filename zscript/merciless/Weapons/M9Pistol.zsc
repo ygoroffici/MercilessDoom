@@ -1,5 +1,4 @@
 
-// TODO: make base weapon class with mod-specific feats
 class BerettaM9 : MercilessWeapon replaces Pistol 
 {
     Default
