@@ -1,0 +1,11 @@
+class MyPlayer : DoomPlayer
+{
+    Default
+    {
+        // Player.StartItem "Shell", 50;
+        Player.StartItem "BerettaM9";
+		Player.StartItem "Pistol";
+		Player.StartItem "Clip", 50;
+        Player.WeaponSlot 2, "BerettaM9", "Pistol";
+    }
+}
