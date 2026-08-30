@@ -1,15 +1,21 @@
 
-class BerettaM9 : Pistol replaces Pistol 
+// TODO: make base weapon class with mod-specific feats
+class BerettaM9 : MercilessWeapon replaces Pistol 
 {
     Default
     {
 		+Weapon.NOAUTOFIRE
+        +Weapon.WIMPY_WEAPON
+        Weapon.SelectionOrder 1900;
+        Weapon.AmmoUse 1;
+        Weapon.AmmoGive 20;
+        Weapon.AmmoType "Clip";
+        Obituary "$OB_MPPISTOL";
+        Inventory.PickupMessage "$PICKUP_PISTOL_DROPPED";
+        Tag "$TAG_PISTOL";
+
         Weapon.WeaponScaleY 0.9;
 		Weapon.WeaponScaleX 0.9;
-        Weapon.BobRangeY 0.75;
-        Weapon.BobRangeX 0.8;
-        Weapon.BobStyle "Inverse";
-        Weapon.BobSpeed 1.3;
     }
 
     States
@@ -40,5 +46,8 @@ class BerettaM9 : Pistol replaces Pistol
         //  multiple muzzleflash variants (randomnly chosen)
         //  smoke particle (maybe in Fire state)
 		Goto LightDone;
+    Spawn:
+        PIST A -1;
+        Stop;
     }
 }

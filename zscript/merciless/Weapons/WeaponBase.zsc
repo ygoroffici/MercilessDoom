@@ -1,0 +1,67 @@
+
+class MercilessWeapon : Weapon
+{
+    PlayerPawn plr;
+    
+    // weapon sway stuff
+	/* These values below may change per-weapon or as development goes on.
+        Honestly, it is indeed too soon for such visual flare,
+        but I wanted to see if what I did here was even possible
+        and I needed some kind of break from making weapon sprites.
+    */
+    const SWAY_SENSITIVITY_Y = 12.0;
+    const SWAY_MIN_Y = 27.0;
+	const SWAY_MAX_Y = 42.0;
+
+    Default
+    {
+        Weapon.KickBack 100;
+
+        Weapon.BobRangeY 0.75;
+        Weapon.BobRangeX 0.8;
+        Weapon.BobStyle "Inverse";
+        Weapon.BobSpeed 1.3;
+    }
+
+    override void DoEffect()
+    {
+        Super.DoEffect();
+        // Code below was taken from Diamond Dragon
+        //  and was first made by Nash Muhandes, adapted & edited for my use.
+        if( owner && owner is "PlayerPawn" )
+        {
+            //  TODO
+            //      Make this sway configurable and also
+            //      add horizontal sway obviously.
+            if( !plr ) {
+                plr = PlayerPawn(owner);
+            }
+
+            let psp = plr.player.psprites;
+            let wep = plr.player.ReadyWeapon;
+            if( !psp || !wep ) return;
+
+            // vertical offset
+            double ypitch = -plr.pitch;
+            ypitch = SWAY_SENSITIVITY_Y * ypitch / 90.0;
+
+            bool bCanSway = (
+                        (plr.player.WeaponState & WF_WEAPONREADY)
+                        || (plr.player.WeaponState & WF_WEAPONREADYALT)
+                        || (plr.player.WeaponState & WF_WEAPONRELOADOK)
+                        || (plr.player.WeaponState & WF_WEAPONZOOMOK)
+                        || (plr.player.WeaponState & WF_WEAPONSWITCHOK)
+                    );
+
+            // main offset logic
+            if( psp && bCanSway )
+            {
+                psp.y = ypitch + 32;
+
+                // add jump velocity to Y
+                // psp.y += (plr.Vel.Z * 2);
+                psp.y = clamp(psp.y, SWAY_MIN_Y, SWAY_MAX_Y);
+            }
+        }
+    }
+}
