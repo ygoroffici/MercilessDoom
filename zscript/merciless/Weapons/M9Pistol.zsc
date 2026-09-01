@@ -1,5 +1,5 @@
 
-class BerettaM9 : MercilessWeapon replaces Pistol 
+class BerettaM9 : MercilessWeapon replaces Pistol
 {
     Default
     {
@@ -17,6 +17,9 @@ class BerettaM9 : MercilessWeapon replaces Pistol
 		Weapon.WeaponScaleX 0.9;
     }
 
+    // Variables for State functionality
+    int rndoffs;
+
     States
     {
     Ready:
@@ -33,12 +36,21 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         //  randomnly offset weapon left-right
         //  literally everything else here 
         TNT1 A 0 {
+            invoker.rndoffs = crandom2(3);
+            // A_SetAngle(self.angle + (invoker.rndoffs-1), SPF_INTERPOLATE);
+            A_SetPitch(self.pitch - 1.0, SPF_INTERPOLATE|SPF_FORCECLAMP);
+            A_MShakeCamera((0, 0.4, 0.5), 3);
+            
+            A_WeaponOffset(invoker.rndoffs, 0, WOF_ADD|WOF_KEEPY);
+            
             A_FirePistol();
         }
-		M9PF AB 1;
+		M9PF AB 1 A_WeaponOffset(0, 2.0, WOF_ADD|WOF_KEEPX);
+		// M9PF AB 1;
 		// M9PF B 1;
 		M9PF C 2;
-		M9PF DE 1;
+		M9PF DE 1 A_WeaponOffset(-invoker.rndoffs, -2.0, WOF_ADD);
+		// M9PF DE 1;
 		Goto Ready;
 	Flash:
         // TODO:

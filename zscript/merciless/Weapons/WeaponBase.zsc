@@ -64,4 +64,15 @@ class MercilessWeapon : Weapon
             }
         }
     }
+
+    /*
+        Custom functions & action functions
+    */
+    
+    // better wrapper for a_quakeex
+    // TODO: Of course, this may need adjustments over time, and take weapon recoil values into account
+    action void A_MShakeCamera(Vector3 xyz, double duration)
+    {
+        A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:50, sfx:"", flags:WOF_RELATIVE, rollintensity:0.5, rollwave:1.0);
+    }
 }
