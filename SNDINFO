@@ -1,0 +1,5 @@
+
+
+weapons/m9/fire = "sounds/Weapons/PistolM9/pistol_shoot.ogg"
+$pitchshift weapons/m9/fire 5
+$volume weapons/m9/fire 0.8
