@@ -13,6 +13,8 @@ class MercilessWeapon : Weapon
     const SWAY_MIN_Y = 27.0;
 	const SWAY_MAX_Y = 42.0;
 
+    const MUZZLE_LAYER = -100;
+
     Default
     {
         Weapon.KickBack 100;

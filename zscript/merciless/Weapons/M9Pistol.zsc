@@ -33,29 +33,51 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         loop;
 	Fire:
         // TODO:
-        //  randomnly offset weapon left-right
-        //  literally everything else here 
+        //  randomnly offset weapon left-right -- Ongoing? want to make it more predictable
+        //  spawn smoke particles
+        //  spawn bullet casings
         TNT1 A 0 {
             invoker.rndoffs = crandom2(3);
             // A_SetAngle(self.angle + (invoker.rndoffs-1), SPF_INTERPOLATE);
-            A_SetPitch(self.pitch - 1.0, SPF_INTERPOLATE|SPF_FORCECLAMP);
-            A_MShakeCamera((0, 0.4, 0.5), 3);
+            A_SetPitch(self.pitch - 0.8, SPF_INTERPOLATE|SPF_FORCECLAMP);
+            A_MShakeCamera((0, 0.4, 0.5), 4);
             
             A_WeaponOffset(invoker.rndoffs, 0, WOF_ADD|WOF_KEEPY);
             
-            A_FirePistol();
+            A_FireBullets(abs(invoker.rndoffs), 0, -1, 7, flags:FBF_USEAMMO|FBF_NOFLASH); // placeholder values...
+            A_StartSound("weapons/m9/fire", CHAN_WEAPON, CHANF_OVERLAP, pitch:frandom(0.95, 1.05)); // placeholder sound...
         }
 		M9PF AB 1 A_WeaponOffset(0, 2.0, WOF_ADD|WOF_KEEPX);
-		// M9PF AB 1;
-		// M9PF B 1;
-		M9PF C 2;
+        M9PF C 1 {
+            int layer = invoker.MUZZLE_LAYER;
+
+            A_Overlay(layer, "MuzzleFlash");
+            A_OverlayFlags(layer, PSPF_RENDERSTYLE|PSPF_ALPHA, true);
+            A_OverlayRenderstyle(layer, STYLE_Add);
+            A_OverlayAlpha(layer, 0.5);
+        }
+		M9PF C 1;
 		M9PF DE 1 A_WeaponOffset(-invoker.rndoffs, -2.0, WOF_ADD);
-		// M9PF DE 1;
 		Goto Ready;
-	Flash:
+	MuzzleFlash:
         // TODO:
         //  multiple muzzleflash variants (randomnly chosen)
-        //  smoke particle (maybe in Fire state)
+        TNT1 A 0 {
+            A_AttachLight('muzzlelight', DynamicLight.PointLight, color(255, 248, 220), 
+                radius1: random(95,130), 
+                radius2: 0,
+                flags: DynamicLight.LF_ATTENUATE,
+                ofs: (0,0,self.player.viewz)
+                );
+        }
+        M9FF AA 1 bright;
+        M9FF B 1 bright {
+            A_OverlayOffset(OverlayID(), crandom2(3), 0);
+            A_OverlayPivot(OverlayID(), 0.5, 0.5);
+            A_OverlayScale(OverlayID(), frandom(0.8, 1.05), 0);
+            A_OverlayRotate(OverlayID(), crandom2(8));
+        }
+        TNT1 A 0 A_RemoveLight('muzzlelight');
 		Goto LightDone;
     Spawn:
         PIST A -1;
