@@ -93,9 +93,8 @@ class MercilessWeapon : Weapon
 
         // Shooting
         //  TODO:
-        //      Add cosmetic tracer projectiles
         //      Add different bullet puffs for weapons                     VVVV
-        A_FireBullets(horzSpread, vertSpread, numBullets, damagePerBullet, "BulletPuff", flags);
+        A_FireBullets(horzSpread, vertSpread, numBullets, damagePerBullet, "BulletPuff", flags, missile:"MBulletTracer", spawnheight:0, spawnofs_xy:0);
     }
     
     // Standard muzzleflash creation for weapons

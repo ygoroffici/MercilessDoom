@@ -1,0 +1,44 @@
+
+class MBulletTracer : FastProjectile
+{
+	int bulletspeed; 	//actual bullet speed (since 'speed' property is used to determine spawn distance only)
+	property bulletspeed : bulletspeed;
+	
+	Default
+	{
+		-ACTIVATEIMPACT
+		-ACTIVATEPCROSS
+		-BLOODSPLATTER
+		// +HITTRACER
+		+BLOODLESSIMPACT
+		MBulletTracer.bulletspeed 256;
+        damage 0;
+		radius 4;
+		height 4;
+		speed 64;
+		renderstyle "add";
+		seesound "";
+		deathsound "";
+	}
+	
+	override void PostBeginPlay()
+	{
+		super.PostBeginPlay();
+		if( !(vel ~== (0,0,0)) ) {
+			vel = vel.unit() * bulletspeed;
+		}
+		A_FaceMovementDirection();
+		// if (target)
+		// 	SpawnPos = target.pos;
+	}
+	
+	states
+	{
+	Spawn:
+		BMRK A -1 bright;
+		stop;
+	Death:
+		TNT1 A 0;
+		stop;
+	}
+}
