@@ -1,4 +1,6 @@
 
-GameInfo {
+GameInfo
+{
     PlayerClasses = "MyPlayer"
+    AddEventHandlers = "WeaponEventHandler"
 }

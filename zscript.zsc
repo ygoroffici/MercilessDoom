@@ -1,9 +1,11 @@
 version "4.14.3"
 
 // weapons
-#include "./zscript/merciless/Weapons/BulletTracer.zsc"
 #include "./zscript/merciless/Weapons/WeaponBase.zsc"
 #include "./zscript/merciless/Weapons/M9Pistol.zsc"
+
+// other functionality
+#include "./zscript/merciless/WeaponEventHandler.zsc"
 
 // player
 #include "./zscript/merciless/PlayerClass.zsc"

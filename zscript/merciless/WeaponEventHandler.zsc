@@ -1,0 +1,126 @@
+
+/*
+    This class is used to create bullet tracers, and manage
+     any other required extra weapon functionality.
+*/
+class WeaponEventHandler : EventHandler
+{
+	static const color _colors[] = {
+		"9b 5b 13",
+		"af 7b 1f",
+		"c3 9b 2f",
+		"c3 9b 2f" /* appears twice so a segment of this color is longer
+					than the others. */
+	};
+
+	const TRACERSCALE		= 6.0;
+	const TRACERSTEP		= 0.01;
+    const TRACERLENGTH      = 80;
+    const TRACERSPEED       = 170;
+
+    // Workaround for hitscan bullets that don't hit anything.
+    //  When that happens, WorldHitscanFired ISN'T called, so we have to figure stuff out ourselves.
+    double preAtkAngle;
+    double preAtkPitch;
+    Actor shooter;
+    Vector3 dir;
+    Vector3 startPos;
+    double shotDistance;
+
+    override bool WorldHitscanPreFired(WorldEvent e)
+    {
+        if( e.thing && e.thing.player )
+        {
+            shotDistance = -1; // will stay like this if WorldHitscanFired isn't called.
+            
+            preAtkAngle = e.AttackAngle;
+            preAtkPitch = e.AttackPitch;
+            shooter = e.thing;
+        }
+
+        return false;
+    }
+
+    override void WorldHitscanFired(WorldEvent e)
+    {
+        if( e.thing && e.thing.player )
+        {
+            startPos = e.AttackPos;
+            shooter = e.thing;
+
+            Vector3 endTarget = e.DamagePosition;
+            let diff = level.Vec3Diff(startPos, endTarget);
+            shotDistance = diff.Length();
+            // Console.Printf("distance: "..shotDistance);
+            dir = diff.Unit();
+        }
+    }
+
+    override void WorldTick()
+    {
+        if( shooter ) 
+        {
+            // The bullet didn't hit any level geometry or Actor...
+            if( shotDistance < 0 )
+            {
+                // So we have to define these things ourselves!!! Ugh.
+                let plr = PlayerPawn(shooter);
+                let correctZOffset = plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor;
+                
+                startPos = plr.pos.PlusZ(correctZOffset);
+                
+                FLineTraceData tr;
+                plr.LineTrace(
+                    preAtkAngle, PLAYERMISSILERANGE, preAtkPitch, flags:0, offsetz:correctZOffset, data:tr);
+                // Console.Printf("hit location: "..tr.HitLocation);
+                
+                Vector3 endTarget = tr.HitLocation;
+                let diff = level.Vec3Diff(startPos, endTarget);
+                dir = diff.Unit();
+
+                SpawnTracerParticles(TICRATE*3); // a fixed 3 seconds
+            }
+            // The bullet hit something & WorldHitscanFired was called...
+            else
+            {
+                // Just calculate the tracer lifetime.
+                int tics = floor(shotDistance / TRACERSPEED);
+                SpawnTracerParticles(tics);
+            }
+
+            shooter = null;
+        }
+    }
+
+    private void SpawnTracerParticles(int particleLifetime)
+    {
+        if( !shooter ) return;
+
+        Vector3 velocity = dir * TRACERSPEED;
+        Vector3 particleEnd = startPos + (dir * TRACERLENGTH);
+
+        FSpawnParticleParams fp;
+        for( float i = 0.0; i < 1; i += TRACERSTEP )
+        {
+            fp.color1 = _colors[clamp(i * _colors.Size(), 0, _colors.Size() -1 )];
+
+            fp.pos.x = lerp(startPos.x, particleEnd.x, i);
+            fp.pos.y = lerp(startPos.y, particleEnd.y, i);
+            fp.pos.z = lerp(startPos.z, particleEnd.z, i);
+
+            fp.vel = velocity;
+            fp.startalpha = 1.0;
+            fp.style = STYLE_Add;
+            fp.flags = SPF_FULLBRIGHT;
+
+            fp.lifetime = particleLifetime; // so much work for this
+            fp.size = TRACERSCALE * i;
+
+            level.SpawnParticle(fp);
+        }
+    }
+
+	float lerp(float v0, float v1, float t) {
+		return (1 - t) * v0 + t * v1;
+	}
+}
