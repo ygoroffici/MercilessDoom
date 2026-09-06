@@ -8,3 +8,11 @@
 - **Doom Weapon Hand templates from this thread:** https://forum.zdoom.org/viewtopic.php?t=50920
 - **ZScript Basics guide by Agent Ash/JekyllGrim:** https://jekyllgrim.github.io/ZScript_Basics/
 - **Project Brutality:** for some of the smoke creation logic for weapons: https://github.com/pa1nki113r/Project_Brutality/blob/1b5fdfb8cfcb58929833e2bccafa3ff05212e617/zscript/Weapons/BaseWeapon_Functions.zsc#L670
+
+
+**Thanks to all of my friends which supported me in any way through the development of this mod (in no particular order):**
+- ampersand/&
+- spooky
+- plushcabinet
+- crepes
+- ...everyone else!
