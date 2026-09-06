@@ -8,6 +8,16 @@ class MercilessWeapon : Weapon
     const SWAY_MIN_Y = 27.0;
 	const SWAY_MAX_Y = 42.0;
 
+    static const String smokeSprites[] = {
+        "YSMKA0",
+        "YSMKB0",
+        "YSMKC0",
+        "YSMKD0",
+        "YSMKE0",
+        "YSMKF0",
+        "YSMKG0"
+    };
+
     // Variables
     PlayerPawn playerOwner;
     double verticalRecoil;
@@ -85,7 +95,8 @@ class MercilessWeapon : Weapon
     // Simplified shooting logic + mod extras
     action void A_MFireWeapon(
             double horzSpread, double vertSpread, int numBullets, int damagePerBullet, 
-            int flags = FBF_USEAMMO|FBF_NOFLASH|FBF_NORANDOM)
+            int flags = FBF_USEAMMO|FBF_NOFLASH|FBF_NORANDOM
+            )
     {
         // Physical recoil applied to player's view
         if( invoker.verticalRecoil != 0 ) {
@@ -100,6 +111,75 @@ class MercilessWeapon : Weapon
         A_FireBullets(horzSpread, vertSpread, numBullets, damagePerBullet, "BulletPuff", flags);
     }
     
+
+	// The smoke spawning logic is almost entirely from Project Brutality
+    //  All I did was adapt for my (current) needs and make it particle-based instead of spawning an Actor
+    //  Without PB I have no idea how I'd do this
+	static Vector3 RelativeToGlobalCoords(Vector3 startpos, Vector3 viewAngles, Vector3 offset)
+	{
+		Quat dir = Quat.FromAngles(viewAngles.x, viewAngles.y, viewAngles.z);
+		Vector3 ofs = dir * (offset.x, -offset.y, offset.z);
+
+		return level.vec3offset(startpos, ofs);
+	}
+
+    /*
+        TODO: Nearly every value here is hardcoded.
+                I believe there are possibilities to make this more flexible, though for now it'll stay like this 
+    */
+	action void A_SpawnGunSmoke(int howMany = 1)
+	{
+		double fovOfs = (120 - self.player.desiredfov) / 3.f; // good enough
+		
+        // These *relative* offset vectors, from what i've tested, function like this:
+        //              (-backward/+forward, -left/+right,  -down/+up)
+        //      Assuming we're viewing from the player's POV.  
+        Vector3 posofs;
+        Vector3 velofs;
+		Vector3 spos;
+		Vector3 svel;
+        double rndroll;
+        String smokename;
+        for( int i = 0; i < howMany; i++ )
+        {
+            FSpawnParticleParams params;
+            /* Variable setup */
+            posofs = (frandom[smk](-1, 3), frandom[smk](-4, 4), frandom[smk](-0.5, 1.0));
+            posofs.z -= 10.5;
+		    posofs.y += 15;
+            velofs = (frandom[smk](0.2, 2.2), random2[smk](3), frandom[smk](0.1, 1.0));
+            
+            /* Calculate relative to absolute coords */
+            spos = MercilessWeapon.RelativeToGlobalCoords( (self.pos.xy, self.player.viewz), (self.angle, self.pitch, self.roll), (self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
+            svel = MercilessWeapon.RelativeToGlobalCoords( (self.vel.xy, 0), (self.angle, self.pitch, self.roll), velofs );
+
+            /* Smoke parameters */
+            smokename = invoker.smokeSprites[ random[smk](0, invoker.smokeSprites.Size()-1) ]; 
+            params.pos = spos;
+            params.style = STYLE_Translucent;
+            params.lifetime = 10 + random[smk](0,15); // between 10 to 25 tics
+
+            rndroll = (1.0 + frandom[smk](0.0, 7.0)) * randompick[smk](-1,1); // between (-)1 to (-)8
+            params.flags = SPF_ROLL|SPF_ROLLCENTER;
+            params.rollvel = rndroll;
+            
+            params.color1 = "";
+            params.texture = TexMan.CheckForTexture(smokename);
+            int w, h;
+            [w, h] = TexMan.GetSize(params.texture);
+            params.size = h*(frandom[smk](0.3,0.5)); // height should always be the greatest
+            
+            params.startalpha = 0.5;
+            params.startroll = 0.0;
+            params.fadestep = -1;
+
+            params.vel = svel;
+
+            level.SpawnParticle(params);
+        }
+
+	}
+
 
     // Standard muzzleflash creation for weapons
     action void A_MCreateFlash(int renderstyle = STYLE_Add)
