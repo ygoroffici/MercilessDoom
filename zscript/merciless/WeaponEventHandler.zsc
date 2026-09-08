@@ -28,12 +28,12 @@ class WeaponEventHandler : EventHandler
             let plr = PlayerPawn(e.thing);
          
             let correctZOffset = plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor;
-            let startPos = plr.pos.PlusZ(correctZOffset);
                 
             FLineTraceData tr;
             plr.LineTrace(
                 e.AttackAngle, PLAYERMISSILERANGE, e.AttackPitch, flags:0, offsetz:correctZOffset, data:tr);
             
+            let startPos = plr.pos.PlusZ(correctZOffset);
             Vector3 endTarget, diff, dir;
             endTarget = tr.HitLocation;
             diff = level.Vec3Diff(startPos, endTarget);
