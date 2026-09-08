@@ -18,84 +18,45 @@ class WeaponEventHandler : EventHandler
     const TRACERLENGTH      = 80;
     const TRACERSPEED       = 170;
 
-    // Workaround for hitscan bullets that don't hit anything.
-    //  When that happens, WorldHitscanFired ISN'T called, so we have to figure stuff out ourselves.
-    double preAtkAngle;
-    double preAtkPitch;
-    Actor shooter;
-    Vector3 dir;
-    Vector3 startPos;
-    double shotDistance;
+    const DISTANCE_THRESHOLD = 2000; // beyond this, the tracers get a fixed-tic lifetime
+
 
     override bool WorldHitscanPreFired(WorldEvent e)
     {
         if( e.thing && e.thing.player )
         {
-            shotDistance = -1; // will stay like this if WorldHitscanFired isn't called.
+            let plr = PlayerPawn(e.thing);
+         
+            let correctZOffset = plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor;
+            let startPos = plr.pos.PlusZ(correctZOffset);
+                
+            FLineTraceData tr;
+            plr.LineTrace(
+                e.AttackAngle, PLAYERMISSILERANGE, e.AttackPitch, flags:0, offsetz:correctZOffset, data:tr);
             
-            preAtkAngle = e.AttackAngle;
-            preAtkPitch = e.AttackPitch;
-            shooter = e.thing;
+            Vector3 endTarget, diff, dir;
+            endTarget = tr.HitLocation;
+            diff = level.Vec3Diff(startPos, endTarget);
+            dir = diff.Unit();
+            
+            let shotDistance = diff.Length();
+            int tics;
+            if( shotDistance > DISTANCE_THRESHOLD ) {
+                tics = TICRATE*3; // a fixed 3 seconds
+            } 
+            else {
+                tics = floor(shotDistance / TRACERSPEED);
+            }
+
+            SpawnTracerParticles(startPos, dir, tics);
         }
 
         return false;
     }
 
-    override void WorldHitscanFired(WorldEvent e)
+
+    private void SpawnTracerParticles(Vector3 startPos, Vector3 dir, int particleLifetime)
     {
-        if( e.thing && e.thing.player )
-        {
-            startPos = e.AttackPos;
-            shooter = e.thing;
-
-            Vector3 endTarget = e.DamagePosition;
-            let diff = level.Vec3Diff(startPos, endTarget);
-            shotDistance = diff.Length();
-            // Console.Printf("distance: "..shotDistance);
-            dir = diff.Unit();
-        }
-    }
-
-    override void WorldTick()
-    {
-        if( shooter ) 
-        {
-            // The bullet didn't hit any level geometry or Actor...
-            if( shotDistance < 0 )
-            {
-                // So we have to define these things ourselves!!! Ugh.
-                let plr = PlayerPawn(shooter);
-                let correctZOffset = plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor;
-                
-                startPos = plr.pos.PlusZ(correctZOffset);
-                
-                FLineTraceData tr;
-                plr.LineTrace(
-                    preAtkAngle, PLAYERMISSILERANGE, preAtkPitch, flags:0, offsetz:correctZOffset, data:tr);
-                // Console.Printf("hit location: "..tr.HitLocation);
-                
-                Vector3 endTarget = tr.HitLocation;
-                let diff = level.Vec3Diff(startPos, endTarget);
-                dir = diff.Unit();
-
-                SpawnTracerParticles(TICRATE*3); // a fixed 3 seconds
-            }
-            // The bullet hit something & WorldHitscanFired was called...
-            else
-            {
-                // Just calculate the tracer lifetime.
-                int tics = floor(shotDistance / TRACERSPEED);
-                SpawnTracerParticles(tics);
-            }
-
-            shooter = null;
-        }
-    }
-
-    private void SpawnTracerParticles(int particleLifetime)
-    {
-        if( !shooter ) return;
-
         Vector3 velocity = dir * TRACERSPEED;
         Vector3 particleEnd = startPos + (dir * TRACERLENGTH);
 
@@ -113,7 +74,7 @@ class WeaponEventHandler : EventHandler
             fp.style = STYLE_Add;
             fp.flags = SPF_FULLBRIGHT;
 
-            fp.lifetime = particleLifetime; // so much work for this
+            fp.lifetime = particleLifetime;
             fp.size = TRACERSCALE * i;
 
             level.SpawnParticle(fp);
