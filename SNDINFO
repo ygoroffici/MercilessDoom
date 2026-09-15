@@ -3,3 +3,9 @@
 weapons/m9/fire = "sounds/Weapons/PistolM9/pistol_shoot.ogg"
 $pitchshift weapons/m9/fire 5
 $volume weapons/m9/fire 0.8
+
+weapons/ssg/fire = "sounds/Weapons/SuperShotgun/SSHFIRE.ogg"
+$volume weapons/ssg/fire 0.8
+weapons/ssg/reloadopen = "sounds/Weapons/SuperShotgun/OpenBarrel.ogg"
+weapons/ssg/reloadclose = "sounds/Weapons/SuperShotgun/CloseBarrel.ogg"
+weapons/ssg/reloadshell = "sounds/Weapons/SuperShotgun/LoadShell.ogg"

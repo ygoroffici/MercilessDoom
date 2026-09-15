@@ -3,6 +3,7 @@ version "4.14.3"
 // weapons
 #include "./zscript/merciless/Weapons/WeaponBase.zsc"
 #include "./zscript/merciless/Weapons/M9Pistol.zsc"
+#include "./zscript/merciless/Weapons/SuperShotgun.zsc"
 
 // other functionality
 #include "./zscript/merciless/WeaponEventHandler.zsc"
