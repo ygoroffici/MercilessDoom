@@ -13,10 +13,10 @@ class WeaponEventHandler : EventHandler
 					than the others. */
 	};
 
-	const TRACERSCALE		= 6.0;
+	const TRACERSCALE		= 4.0;
 	const TRACERSTEP		= 0.01;
-    const TRACERLENGTH      = 80;
-    const TRACERSPEED       = 170;
+    const TRACERLENGTH      = 65;
+    const TRACERSPEED       = 280;
 
     const DISTANCE_THRESHOLD = 2000; // beyond this, the tracers get a fixed-tic lifetime
 
