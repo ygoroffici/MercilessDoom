@@ -11,11 +11,11 @@ class MercilessWeapon : Weapon
     static const String smokeSprites[] = {
         "YSMKA0",
         "YSMKB0",
-        "YSMKC0",
-        "YSMKD0",
-        "YSMKE0",
-        "YSMKF0",
-        "YSMKG0"
+        "YSMKC0"
+        // "YSMKD0",
+        // "YSMKE0",
+        // "YSMKF0",
+        // "YSMKG0"
     };
 
     // Variables
@@ -92,8 +92,9 @@ class MercilessWeapon : Weapon
         Custom functions & action functions
     */
 
-    // Simplified shooting logic + mod extras
-    action void A_MFireWeapon(
+
+    // Shooting wrapper
+    action void MD_FireWeapon(
             double horzSpread, double vertSpread, int numBullets, int damagePerBullet, 
             int flags = FBF_USEAMMO|FBF_NOFLASH|FBF_NORANDOM
             )
@@ -123,57 +124,75 @@ class MercilessWeapon : Weapon
 		return level.vec3offset(startpos, ofs);
 	}
 
+
     /*
-        TODO: Nearly every value here is hardcoded.
-                I believe there are possibilities to make this more flexible, though for now it'll stay like this 
+        Spawns smoke particles at the gun's barrel.
+        Can be used with its default parameters or finetuned.
+
+        May have further parameters later on
     */
-	action void A_SpawnGunSmoke(int howMany = 1)
+	action void MD_SpawnBarrelSmoke(int howMany = -1,
+                                int style = STYLE_Add, 
+                                double minSize = 0.2, 
+                                double maxSize = 0.4, 
+                                double sizeStep = 2,
+                                double startAlpha = 0.5
+                                )
 	{
 		double fovOfs = (120 - self.player.desiredfov) / 3.f; // good enough
-		
-        // These *relative* offset vectors, from what i've tested, function like this:
-        //              (-backward/+forward, -left/+right,  -down/+up)
-        //      Assuming we're viewing from the player's POV.  
+
+        // Relative offset vectors from player's POV:   (X: -left/+right, Y: -backward/+forward,  Z: -down/+up)
         Vector3 posofs;
         Vector3 velofs;
 		Vector3 spos;
 		Vector3 svel;
         double rndroll;
         String smokename;
+        
+        if( howMany <= 0 ) {
+            howMany = random[smk](1, 3);
+        }
+        
         for( int i = 0; i < howMany; i++ )
         {
             FSpawnParticleParams params;
-            /* Variable setup */
-            posofs = (frandom[smk](-1, 3), frandom[smk](-4, 4), frandom[smk](-0.5, 1.0));
+            
+            //  Setting up variables
+            posofs = (random2[smk](5), frandom[smk](0.1, 1.0), frandom[smk](3.0, 4.0));
             posofs.z -= 10.5;
 		    posofs.y += 15;
-            velofs = (frandom[smk](0.2, 2.2), random2[smk](3), frandom[smk](0.1, 1.0));
+            velofs = (frandom[smk](-1.5, 1.5), frandom[smk](-0.2, 1.0), frandom[smk](0.1, 0.8));
             
-            /* Calculate relative to absolute coords */
+            //  Relative coords to absolute coords
             spos = MercilessWeapon.RelativeToGlobalCoords( (self.pos.xy, self.player.viewz), (self.angle, self.pitch, self.roll), (self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
             svel = MercilessWeapon.RelativeToGlobalCoords( (self.vel.xy, 0), (self.angle, self.pitch, self.roll), velofs );
 
-            /* Smoke parameters */
-            smokename = invoker.smokeSprites[ random[smk](0, invoker.smokeSprites.Size()-1) ]; 
+            //  Basic parameters
             params.pos = spos;
-            params.style = STYLE_Translucent;
-            params.lifetime = 10 + random[smk](0,15); // between 10 to 25 tics
+            params.style = style;
+            params.lifetime = 18 + random[smk](0,7); // between 18 to 25 tics
 
-            rndroll = (1.0 + frandom[smk](0.0, 7.0)) * randompick[smk](-1,1); // between (-)1 to (-)8
+            //  Rolling the particle
             params.flags = SPF_ROLL|SPF_ROLLCENTER;
+            params.startroll = 0.0;
+            rndroll = (1.0 + random[smk](0.0, 3.0)) * randompick[smk](-1,1); // between (-)1 to (-)4 degrees per tic
             params.rollvel = rndroll;
             
+            //  Texturing the particle
             params.color1 = "";
+            smokename = invoker.smokeSprites[ random[smk](0, invoker.smokeSprites.Size()-1) ]; 
             params.texture = TexMan.CheckForTexture(smokename);
             int w, h;
             [w, h] = TexMan.GetSize(params.texture);
-            params.size = h*(frandom[smk](0.3,0.5)); // height should always be the greatest
+            params.size = h * (frandom[smk](minSize, maxSize));
             
-            params.startalpha = 0.5;
-            params.startroll = 0.0;
-            params.fadestep = -1;
+            //  Fading & growing
+            params.startalpha = startAlpha;
+            params.fadestep = -1.5;
+            params.sizestep = sizeStep;
 
             params.vel = svel;
+            params.accel = -(svel * 0.05); // 5% of -velocity 
 
             level.SpawnParticle(params);
         }
@@ -182,7 +201,7 @@ class MercilessWeapon : Weapon
 
 
     // Standard muzzleflash creation for weapons
-    action void A_MCreateFlash(int renderstyle = STYLE_Add)
+    action void MD_MuzzleFlash(int renderstyle = STYLE_Add)
     {
         A_Overlay(invoker.FLASH_LAYER,            "MuzzleFlash");
         A_OverlayFlags(invoker.FLASH_LAYER,       PSPF_RENDERSTYLE|PSPF_ALPHA, set:true);
@@ -193,9 +212,9 @@ class MercilessWeapon : Weapon
 
     // better wrapper for a_quakeex
     // TODO: Of course, this may need adjustments over time, and take weapon recoil values into account
-    action void A_MShakeCamera(Vector3 xyz, double duration)
+    action void MD_ShakeCamera(Vector3 xyz, double duration, double rollint = 0.5, double rollwave = 1.0, int flags = QF_RELATIVE)
     {
-        A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:50, sfx:"", flags:WOF_RELATIVE, rollintensity:0.5, rollwave:1.0);
+        A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:50, sfx:"", flags:flags, rollintensity:rollint, rollwave:rollwave);
     }
 
 }
