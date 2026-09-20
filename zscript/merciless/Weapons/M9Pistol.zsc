@@ -1,8 +1,7 @@
 
 class BerettaM9 : MercilessWeapon replaces Pistol
 {
-    Default
-    {
+    Default{
 		+Weapon.NOAUTOFIRE
         +Weapon.WIMPY_WEAPON
         Weapon.SelectionOrder 1900;
@@ -34,7 +33,6 @@ class BerettaM9 : MercilessWeapon replaces Pistol
 	Fire:
         // TODO:
         //  randomnly offset weapon left-right -- Ongoing? want to make it more predictable
-        //  spawn smoke particles
         //  spawn bullet casings
         TNT1 A 0 {
             MD_FireWeapon(2, 0, -1, 7 * random(1,3));
@@ -49,7 +47,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         } 
 		M9PF AB 1;
 		// M9PF AB 1 A_WeaponOffset(0, 2.0, WOF_ADD|WOF_KEEPX);
-        M9PF CC 1 A_ZoomFactor(1.0);
+        M9PF C 1 A_ZoomFactor(1.0);
 		// M9PF C 1;
         M9PF D 2 {
             A_WeaponReady();
