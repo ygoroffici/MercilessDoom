@@ -1,8 +1,7 @@
 
 class MercilessSSG : MercilessWeapon replaces SuperShotgun
 {
-    Default
-    {
+    Default{
 		+Weapon.NOAUTOFIRE
 		Weapon.SelectionOrder 400;
 		Weapon.AmmoUse 2;
@@ -42,7 +41,7 @@ class MercilessSSG : MercilessWeapon replaces SuperShotgun
 		}
 		YSSF A 1;
 		YSSF B 1 { 
-			A_QuakeEx(0.0, 1.5, 2.2, 7, 0, tremrad:50, sfx:"", flags:QF_RELATIVE|QF_WAVE, mulwavez:2.0, rollintensity:frandom[shk](0.5, 1.0), rollwave:2.0);
+			A_QuakeEx(0.0, 1.8, 2.5, 7, 0, tremrad:50, sfx:"", flags:QF_RELATIVE|QF_WAVE, mulwavez:2.0, rollintensity:frandom[shk](0.8, 1.5), rollwave:2.0);
 			MD_MuzzleFlash(STYLE_Normal);
 		}
 		YSSF CDD 1 A_ZoomFactor(1.0);
