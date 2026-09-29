@@ -1,0 +1,67 @@
+/*********************************************************************************/
+/*****************  Messy Part for the Smoke Particle Textures  *****************/
+/*********************************************************************************/
+Texture "WPNSMOKEVAR1_1", 240, 240 { Patch "WSMKA0", 0, 0 }
+Texture "WPNSMOKEVAR1_2", 240, 240 { Patch "WSMKB0", 0, 0 }
+Texture "WPNSMOKEVAR1_3", 240, 240 { Patch "WSMKC0", 0, 0 }
+
+Texture "WPNSMOKEVAR2_1", 240, 240 { Patch "WSMKD0", 0, 0 }
+Texture "WPNSMOKEVAR2_2", 240, 240 { Patch "WSMKE0", 0, 0 }
+Texture "WPNSMOKEVAR2_3", 240, 240 { Patch "WSMKF0", 0, 0 }
+
+Texture "WPNSMOKEVAR3_1", 240, 240 { Patch "WSMKG0", 0, 0 }
+Texture "WPNSMOKEVAR3_2", 240, 240 { Patch "WSMKH0", 0, 0 }
+Texture "WPNSMOKEVAR3_3", 240, 240 { Patch "WSMKI0", 0, 0 }
+
+Texture "WPNSMOKEVAR4_1", 240, 240 { Patch "WSMKJ0", 0, 0 }
+Texture "WPNSMOKEVAR4_2", 240, 240 { Patch "WSMKK0", 0, 0 }
+Texture "WPNSMOKEVAR4_3", 240, 240 { Patch "WSMKL0", 0, 0 }
+
+Texture "WPNSMOKEVAR5_1", 240, 240 { Patch "WSMKM0", 0, 0 }
+Texture "WPNSMOKEVAR5_2", 240, 240 { Patch "WSMKN0", 0, 0 }
+Texture "WPNSMOKEVAR5_3", 240, 240 { Patch "WSMKO0", 0, 0 }
+
+Texture "WPNSMOKEVAR6_1", 250, 250 { Patch "WSMKP0", 0, 0 }
+Texture "WPNSMOKEVAR6_2", 250, 250 { Patch "WSMKQ0", 0, 0 }
+Texture "WPNSMOKEVAR6_3", 250, 250 { Patch "WSMKR0", 0, 0 }
+
+Texture "WPNSMOKEVAR7_1", 260, 260 { Patch "WSMKS0", 0, 0 }
+Texture "WPNSMOKEVAR7_2", 260, 260 { Patch "WSMKT0", 0, 0 }
+Texture "WPNSMOKEVAR7_3", 260, 260 { Patch "WSMKU0", 0, 0 }
+
+// Mirrored versions
+//      These mirrored versions aren't only for visual flare, but also a small "workaround"
+//      for how animated particles/Texture definitions work.
+//    since they all share the same space in memory, if two particles with the same texture animation
+//    spawn right after the other, the animation for one of them will be reset and play again from the beginning.
+//      It is important to have this extra redundancy so that noticeable goofs like this are VERY rare.
+Texture "MIRROR_WPNSMOKEVAR1_1", 240, 240 { Patch "ISMKA0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR1_2", 240, 240 { Patch "ISMKB0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR1_3", 240, 240 { Patch "ISMKC0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR2_1", 240, 240 { Patch "ISMKD0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR2_2", 240, 240 { Patch "ISMKE0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR2_3", 240, 240 { Patch "ISMKF0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR3_1", 240, 240 { Patch "ISMKG0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR3_2", 240, 240 { Patch "ISMKH0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR3_3", 240, 240 { Patch "ISMKI0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR4_1", 240, 240 { Patch "ISMKJ0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR4_2", 240, 240 { Patch "ISMKK0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR4_3", 240, 240 { Patch "ISMKL0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR5_1", 240, 240 { Patch "ISMKM0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR5_2", 240, 240 { Patch "ISMKN0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR5_3", 240, 240 { Patch "ISMKO0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR6_1", 250, 250 { Patch "ISMKP0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR6_2", 250, 250 { Patch "ISMKQ0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR6_3", 250, 250 { Patch "ISMKR0", 0, 0 }
+
+Texture "MIRROR_WPNSMOKEVAR7_1", 260, 260 { Patch "ISMKS0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR7_2", 260, 260 { Patch "ISMKT0", 0, 0 }
+Texture "MIRROR_WPNSMOKEVAR7_3", 260, 260 { Patch "ISMKU0", 0, 0 }
+/********************************************************************************/
+/****************  End of the Messy Part for the Smoke Textures  ****************/
+/********************************************************************************/

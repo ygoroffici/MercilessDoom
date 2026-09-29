@@ -1,0 +1,76 @@
+/******************************************************************/
+/**********  Messy Part for the Smoke Particle Textures  **********/
+/******************************************************************/
+TEXTURE WPNSMOKEVAR1_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10 // total: 11 tics
+
+TEXTURE WPNSMOKEVAR2_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE WPNSMOKEVAR3_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE WPNSMOKEVAR4_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE WPNSMOKEVAR5_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE WPNSMOKEVAR6_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE WPNSMOKEVAR7_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+// Mirrored versions
+TEXTURE MIRROR_WPNSMOKEVAR1_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR2_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR3_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR4_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR5_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR6_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+
+TEXTURE MIRROR_WPNSMOKEVAR7_1
+    pic 1 tics 3
+    pic 2 tics 3
+    pic 3 tics 10
+/************************************************************/
+/*********  End of the smoke particle animations  ***********/
+/************************************************************/

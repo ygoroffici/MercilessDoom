@@ -15,13 +15,14 @@ class WeaponEventHandler : EventHandler
 
 	const TRACERSCALE		= 4.0;
 	const TRACERSTEP		= 0.01;
-    const TRACERLENGTH      = 65;
-    const TRACERSPEED       = 280;
+    const TRACERLENGTH      = 90;
+    const TRACERSPEED       = 360;
 
     const DISTANCE_THRESHOLD = 2000; // beyond this, the tracers get a fixed-tic lifetime
 
 
-    override bool WorldHitscanPreFired(WorldEvent e)
+    override 
+    bool WorldHitscanPreFired(WorldEvent e)
     {
         if( e.thing && e.thing.player )
         {
@@ -55,7 +56,8 @@ class WeaponEventHandler : EventHandler
     }
 
 
-    private void SpawnTracerParticles(Vector3 startPos, Vector3 dir, int particleLifetime)
+    private 
+    void SpawnTracerParticles(Vector3 startPos, Vector3 dir, int particleLifetime)
     {
         Vector3 velocity = dir * TRACERSPEED;
         Vector3 particleEnd = startPos + (dir * TRACERLENGTH);
@@ -80,6 +82,7 @@ class WeaponEventHandler : EventHandler
             level.SpawnParticle(fp);
         }
     }
+
 
 	float lerp(float v0, float v1, float t) {
 		return (1 - t) * v0 + t * v1;

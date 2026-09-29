@@ -9,13 +9,21 @@ class MercilessWeapon : Weapon
 	const SWAY_MAX_Y = 42.0;
 
     static const String smokeSprites[] = {
-        "YSMKA0",
-        "YSMKB0",
-        "YSMKC0"
-        // "YSMKD0",
-        // "YSMKE0",
-        // "YSMKF0",
-        // "YSMKG0"
+        "WPNSMOKEVAR1_1",
+        "WPNSMOKEVAR2_1",
+        "WPNSMOKEVAR3_1",
+        "WPNSMOKEVAR4_1",
+        "WPNSMOKEVAR5_1",
+        "WPNSMOKEVAR6_1",
+        "WPNSMOKEVAR7_1",
+        // mirrored versions
+        "MIRROR_WPNSMOKEVAR1_1",
+        "MIRROR_WPNSMOKEVAR2_1",
+        "MIRROR_WPNSMOKEVAR3_1",
+        "MIRROR_WPNSMOKEVAR4_1",
+        "MIRROR_WPNSMOKEVAR5_1",
+        "MIRROR_WPNSMOKEVAR6_1",
+        "MIRROR_WPNSMOKEVAR7_1"
     };
 
     // Variables
@@ -88,10 +96,10 @@ class MercilessWeapon : Weapon
     }
 
 
+
     /*
         Custom functions & action functions
     */
-
 
     // Shooting wrapper
     action void MD_FireWeapon(
@@ -125,12 +133,7 @@ class MercilessWeapon : Weapon
 	}
 
 
-    /*
-        Spawns smoke particles at the gun's barrel.
-        Can be used with its default parameters or finetuned.
-
-        May have further parameters later on
-    */
+    /* Spawns smoke particles at the gun's barrel. */
 	action void MD_SpawnBarrelSmoke(int howMany = -1,
                                 int style = STYLE_Add, 
                                 double minSize = 0.2, 
@@ -141,7 +144,8 @@ class MercilessWeapon : Weapon
 	{
 		double fovOfs = (120 - self.player.desiredfov) / 3.f; // good enough
 
-        // Relative offset vectors from player's POV:   (X: -left/+right, Y: -backward/+forward,  Z: -down/+up)
+        // Relative offset vectors from player's POV:   (X: -right/+left, Y: -backward/+forward,  Z: -down/+up)
+        // I don't know anymore actually
         Vector3 posofs;
         Vector3 velofs;
 		Vector3 spos;
@@ -158,10 +162,12 @@ class MercilessWeapon : Weapon
             FSpawnParticleParams params;
             
             //  Setting up variables
-            posofs = (random2[smk](3), frandom[smk](0.1, 1.0), frandom[smk](1.5, 2.0));
+            posofs = (frandom[smk](-0.8, 0.8), frandom[smk](0.1, 0.7), frandom[smk](-3.0, 2.0));
+            // posofs.z -= 10.5;
             posofs.z -= 10.5;
 		    posofs.y += 15;
-            velofs = (frandom[smk](-2.5, 2.5), frandom[smk](-0.8, 2.0), frandom[smk](0.6, 1.8));
+            // velofs = (frandom[smk](-2.5, 2.5), frandom[smk](-0.8, 2.0), frandom[smk](0.6, 1.8));
+            velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.7, 0.7), frandom[smk](0.7, 0.9));
             
             //  Relative coords to absolute coords
             spos = MercilessWeapon.RelativeToGlobalCoords( (self.pos.xy, self.player.viewz), (self.angle, self.pitch, self.roll), (self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
@@ -170,13 +176,17 @@ class MercilessWeapon : Weapon
             //  Basic parameters
             params.pos = spos;
             params.style = style;
-            params.lifetime = 15 + random[smk](0,5); // between 15 to 20 tics
+            // params.lifetime = 15 + random[smk](0,5); // between 15 to 20 tics
+            // params.lifetime = 8 + random[smk](0,6); // between 8 to 14 tics
+            params.lifetime = 9; // between 8 to 14 tics
+            // params.lifetime = 400; // between 8 to 14 tics
 
             //  Rolling the particle
-            params.flags = SPF_ROLL|SPF_ROLLCENTER;
-            params.startroll = 0.0;
-            rndroll = (1.0 + random[smk](0.0, 2.5)) * randompick[smk](-1,1); // between (-)0.5 to (-)3 degrees per tic
-            params.rollvel = rndroll;
+            params.flags = SPF_ROLL|SPF_ROLLCENTER|SPF_LOCAL_ANIM;
+            params.startroll = 90+frandom[smk](-5, 5);
+            // rndroll = (1.0 + random[smk](0.0, 2.5)) * randompick[smk](-1,1); // between (-)0.5 to (-)3 degrees per tic
+            // rndroll = random[smk](0.0, 1.0) * randompick[smk](-1,1); // between (-)0.3 to (-)1.8 degrees per tic
+            params.rollvel = (velofs.y*1.25)*-1;
             
             //  Texturing the particle
             params.color1 = "";
@@ -188,11 +198,11 @@ class MercilessWeapon : Weapon
             
             //  Fading & growing
             params.startalpha = startAlpha;
-            params.fadestep = -1.5;
+            params.fadestep = -1;
             params.sizestep = sizeStep;
 
             params.vel = svel;
-            params.accel = -(svel * 0.05); // 5% of -velocity 
+            // params.accel = -(svel * 0.05); // 5% of -velocity 
 
             level.SpawnParticle(params);
         }
@@ -211,10 +221,9 @@ class MercilessWeapon : Weapon
 
 
     // better wrapper for a_quakeex
-    // TODO: Of course, this may need adjustments over time, and take weapon recoil values into account
-    action void MD_ShakeCamera(Vector3 xyz, double duration, double rollint = 0.5, double rollwave = 1.0, int flags = QF_RELATIVE)
+    action void MD_ShakeCamera(Vector3 xyz, double duration, double rollintensity = 0.5, double rollwave = 1.0, int flags = QF_RELATIVE|QF_SCALEDOWN)
     {
-        A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:50, sfx:"", flags:flags, rollintensity:rollint, rollwave:rollwave);
+        A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:64, sfx:"", flags:flags, rollintensity:rollintensity, rollwave:rollwave);
     }
 
 }
