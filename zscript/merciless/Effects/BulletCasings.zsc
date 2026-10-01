@@ -1,0 +1,142 @@
+
+/*
+    this class contains code suitable for any kind of casing
+    for now there's only 1 casing type, it's only used by the pistol, it doesn't react to liquids, 
+    it's using assets & a bit of code from Beautiful Doom...
+    
+    but it's still an early project!
+*/
+class GenericCasing : Actor
+{
+	Default 
+	{
+		-NOGRAVITY
+		-DROPOFF
+		-DONTSPLASH
+		-CANBOUNCEWATER
+		-SOLID
+		-SHOOTABLE
+		+MISSILE
+		+WINDTHRUST
+		+NOBLOCKMAP
+		+MOVEWITHSECTOR
+		+NOTELEPORT
+		+FLOORCLIP
+		+ROLLSPRITE
+		+ROLLCENTER
+		+SQUAREPIXELS
+        +FORCEXYBILLBOARD
+		+BOUNCEONACTORS
+		+INTERPOLATEANGLES
+		+EXPLODEONWATER
+		+NOBLOCKMONST
+
+		Height 2;
+		Radius 2;
+		Speed 2;
+		Scale 0.1;
+		Mass 4;
+		BounceSound "weapons/casing";
+		BounceType "Doom";
+		BounceFactor 0.4;
+		Friction 0.8;
+		MaxStepHeight 0;
+	}
+
+    double spinSpeed;
+    int casingLifetime; // In the future I may make this a part of a bigger "janitor" cleanup class
+                    // Also, for now I'm destroying the casing Actors themselves.
+                    // But my idea is to simply replace them with much lighter VisualThinkers. I'll do it soon.
+    int lifetimeCount;
+    bool stopped;
+    
+    int smokeSpawnRate;
+    int smokeTicsLifetime;
+
+    static const String smokes[] = {
+        "WSMKA0",
+        "WSMKD0",
+        "WSMKG0",
+        "WSMKJ0",
+        "WSMKM0",
+        "WSMKP0"
+    };
+    FSpawnParticleParams smkp;
+
+
+    override
+    void PostBeginPlay()
+    {
+        super.PostBeginPlay();
+        spinSpeed = frandom(-18, -24);
+        casingLifetime = TICRATE*20; // 20 seconds
+        lifetimeCount = 0;
+
+        smokeSpawnRate = 2;
+        smokeTicsLifetime = TICRATE*3; // 3 seconds
+
+        smkp.startAlpha = 1.0;
+        smkp.fadestep = -1;
+        smkp.sizeStep = 0.1;
+        smkp.lifetime = 15;
+        smkp.style = STYLE_Add;
+        smkp.flags = SPF_ROLL|SPF_ROLLCENTER;
+        smkp.color1 = "";
+
+        self.roll = frandom(190, 195);
+    }
+
+
+	override
+    void Tick()
+	{
+		super.Tick();
+
+        if( GetAge() < smokeTicsLifetime && GetAge() % smokeSpawnRate == 0)
+        {
+            smkp.texture = TexMan.CheckForTexture(smokes[random[smk](0,5)]); // tired of this fuckass random function i just hardcodedthis shit
+            smkp.size = frandom[smk](2,7);
+            smkp.startroll = frandom[smk](-5, 5);
+
+            smkp.vel = (frandom[smk](-0.05, 0.05), frandom[smk](-0.05, 0.05), frandom[smk](0.15, 0.3));
+            smkp.pos = self.pos.PlusZ(1);
+            smkp.rollvel = frandom[smk](2,4) * randompick[smk](-1,1);
+            level.SpawnParticle(smkp);
+        }
+
+        if( GetAge() > 12 ) { // so it doesnt look too small when on ground 
+            scale = (0.15,0.15);
+        }
+
+        
+		if( isFrozen() )
+			return;
+        if( stopped ) {
+            lifetimeCount++;
+            if( lifetimeCount > casingLifetime ) {
+                destroy();
+            }
+            return;
+        }
+
+		roll  += spinSpeed;
+		angle += spinSpeed * 0.6;
+	}
+	
+    
+	States
+	{
+        Spawn:
+            CAS1 AABBCCBBAABBCCBB 1;
+            loop;
+		Death:
+			"####" "#" 0 {
+                A_SetRoll(0);
+                stopped = true;
+                smokeSpawnRate = 5;
+            }
+		LayingLoop:
+			"####" "#" 1;
+			loop;
+	}
+}

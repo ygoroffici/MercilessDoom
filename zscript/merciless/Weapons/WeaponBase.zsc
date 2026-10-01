@@ -119,7 +119,7 @@ class MercilessWeapon : Weapon
         //      Add different bullet puffs for weapons                     VVVV
         A_FireBullets(horzSpread, vertSpread, numBullets, damagePerBullet, "BulletPuff", flags);
     }
-    
+
 
 	// The smoke spawning logic is almost entirely from Project Brutality
     //  All I did was adapt for my (current) needs and make it particle-based instead of spawning an Actor
@@ -133,6 +133,99 @@ class MercilessWeapon : Weapon
 	}
 
 
+    protected action Vector3 GetGlobalPlayerOffs(Vector3 coordinates, bool isVelocity = false)
+    {
+        if( !self.player) {
+            return (0,0,0); // this shouldn't happen
+        }
+
+        Vector3 viewAngles = (self.angle, self.pitch, self.roll);
+        Vector3 startVec;
+        if( isVelocity )
+            startVec = (self.vel.xy, 0);
+        else
+            startVec = (self.pos.xy, self.player.viewz);
+        
+        return RelativeToGlobalCoords(startVec, viewAngles, coordinates);
+    }
+
+
+    action void MD_SpawnCasings(class<Actor> casing, 
+                                double xOfs = 0, 
+                                double yOfs = 0, 
+                                double zOfs = 0, 
+
+                                double xVel = 0, 
+                                double yVel = 0, 
+                                double zVel = 0
+                                )
+    {
+		// Vector3 ofs = pmo.pos + (0, 0, plr.viewheight - GetFloorTerrain().footclip);       <-- Beautiful Doom
+        if( !self.player ) {
+            return;
+        }
+
+        zOfs -= (self.player.viewz - self.pos.z) / self.player.CrouchFactor;
+        yOfs *= invoker.WeaponScaleX; // ???
+		double fovOfs = (120 - self.player.desiredfov) / 3.f; 
+        Vector3 spos, svel;
+
+        spos = GetGlobalPlayerOffs((self.radius + xOfs - (5.0 * abs(sin(self.pitch))), self.radius + yOfs, zOfs));
+        svel = GetGlobalPlayerOffs((xVel, yVel, zVel), isVelocity:true);
+        /* The setup for RelativeToGlobalCoords is pretty much the same as SpawnBarrelSmoke.
+                I've written a function to do those 2 things at once. 
+                Maybe it's just overcomplicating things but for me it becomes easier to understand... 
+        */
+
+        let cas = Spawn(casing, spos);
+        if( cas )
+        {
+			cas.vel = svel;
+			cas.angle = self.angle;
+			cas.target = self;	//so the casings dont collide with the shooter
+
+            invoker.SpawnCasingSmoke(spos, svel*0.1);
+        }
+    }
+
+
+    void SpawnCasingSmoke(Vector3 position, Vector3 velocity)
+    {
+        static const String casingSmokes[] = {
+            "BCSMA0",
+            "BCSMB0",
+            "BCSMC0",
+            "BCSMD0"
+        };
+        
+        FSpawnParticleParams params;
+        params.pos = position;
+        // initially i was randomizing the whole velocity
+        //  but then i realized that i was literally losing the relative offsets which are the backbone of this whole
+        //  casing/smoke spawning logic to work properly
+        let rndz = frandom[smk](-0.05, 0.10);
+        velocity.z = rndz;
+        params.vel = velocity;
+        params.lifetime = 6;
+        params.startalpha = 1.0;
+        params.fadestep = -1;
+        params.sizestep = frandom[smk](0.5, 1.2);
+        
+        params.color1 = "";
+        let smok = casingSmokes[ random[smk](0, casingSmokes.Size()-1) ]; 
+        params.texture = TexMan.CheckForTexture(smok);
+        int w, h;
+        [w, h] = TexMan.GetSize(params.texture);
+        params.size = h * 0.05;
+        
+        params.flags = SPF_ROLL|SPF_ROLLCENTER;
+        params.startroll = 135 + frandom[smk](-5,5);
+        params.rollvel = velocity.y * (frandom[smk](5,6) * randompick[smk](-1,1));
+
+        params.style = STYLE_Add;
+        level.SpawnParticle(params);
+    }
+
     /* Spawns smoke particles at the gun's barrel. */
 	action void MD_SpawnBarrelSmoke(int howMany = -1,
                                 int style = STYLE_Add, 
@@ -142,16 +235,12 @@ class MercilessWeapon : Weapon
                                 double startAlpha = 0.6
                                 )
 	{
-		double fovOfs = (120 - self.player.desiredfov) / 3.f; // good enough
 
-        // Relative offset vectors from player's POV:   (X: -right/+left, Y: -backward/+forward,  Z: -down/+up)
-        // I don't know anymore actually
-        Vector3 posofs;
-        Vector3 velofs;
-		Vector3 spos;
-		Vector3 svel;
+        // Relative offsets from POV:   (X: -backward/+forward, Y: -right/+left,  Z: -down/+up)
+        Vector3 posofs, velofs, spos, svel;
         double rndroll;
         String smokename;
+		double fovOfs = (120 - self.player.desiredfov) / 3.f;
         
         if( howMany <= 0 ) {
             howMany = random[smk](1, 3);
@@ -163,30 +252,26 @@ class MercilessWeapon : Weapon
             
             //  Setting up variables
             posofs = (frandom[smk](-0.8, 0.8), frandom[smk](0.1, 0.7), frandom[smk](-3.0, 2.0));
-            // posofs.z -= 10.5;
             posofs.z -= 10.5;
 		    posofs.y += 15;
-            // velofs = (frandom[smk](-2.5, 2.5), frandom[smk](-0.8, 2.0), frandom[smk](0.6, 1.8));
             velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.7, 0.7), frandom[smk](0.7, 0.9));
             
-            //  Relative coords to absolute coords
-            spos = MercilessWeapon.RelativeToGlobalCoords( (self.pos.xy, self.player.viewz), (self.angle, self.pitch, self.roll), (self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
-            svel = MercilessWeapon.RelativeToGlobalCoords( (self.vel.xy, 0), (self.angle, self.pitch, self.roll), velofs );
-
-            //  Basic parameters
+            spos = GetGlobalPlayerOffs((self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
+            svel = GetGlobalPlayerOffs(velofs, isVelocity:true);
             params.pos = spos;
-            params.style = style;
-            // params.lifetime = 15 + random[smk](0,5); // between 15 to 20 tics
-            // params.lifetime = 8 + random[smk](0,6); // between 8 to 14 tics
-            params.lifetime = 9; // between 8 to 14 tics
-            // params.lifetime = 400; // between 8 to 14 tics
+            params.vel = svel;
 
-            //  Rolling the particle
+            //  Other basic parameters
+            params.style = style;
+            params.lifetime = 9; // enough for the smokes
+
             params.flags = SPF_ROLL|SPF_ROLLCENTER|SPF_LOCAL_ANIM;
             params.startroll = 90+frandom[smk](-5, 5);
-            // rndroll = (1.0 + random[smk](0.0, 2.5)) * randompick[smk](-1,1); // between (-)0.5 to (-)3 degrees per tic
-            // rndroll = random[smk](0.0, 1.0) * randompick[smk](-1,1); // between (-)0.3 to (-)1.8 degrees per tic
             params.rollvel = (velofs.y*1.25)*-1;
+
+            params.startalpha = startAlpha;
+            params.fadestep = -1;
+            params.sizestep = sizeStep;
             
             //  Texturing the particle
             params.color1 = "";
@@ -195,14 +280,6 @@ class MercilessWeapon : Weapon
             int w, h;
             [w, h] = TexMan.GetSize(params.texture);
             params.size = h * (frandom[smk](minSize, maxSize));
-            
-            //  Fading & growing
-            params.startalpha = startAlpha;
-            params.fadestep = -1;
-            params.sizestep = sizeStep;
-
-            params.vel = svel;
-            // params.accel = -(svel * 0.05); // 5% of -velocity 
 
             level.SpawnParticle(params);
         }
