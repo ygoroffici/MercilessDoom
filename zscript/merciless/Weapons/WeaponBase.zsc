@@ -222,7 +222,7 @@ class MercilessWeapon : Weapon
         params.startroll = 135 + frandom[smk](-5,5);
         params.rollvel = velocity.y * (frandom[smk](5,6) * randompick[smk](-1,1));
 
-        params.style = STYLE_Add;
+        // params.style = STYLE_Add;
         level.SpawnParticle(params);
     }
 

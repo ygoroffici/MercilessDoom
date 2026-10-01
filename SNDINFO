@@ -15,3 +15,5 @@ weapons/casing1 = "sounds/Effects/DSCASIN1.wav"
 weapons/casing2 = "sounds/Effects/DSCASIN2.wav"
 weapons/casing3 = "sounds/Effects/DSCASIN3.wav"
 $random weapons/casing { weapons/casing1 weapons/casing2 weapons/casing3 }
+$volume weapons/casing 0.5
+$pitchshift weapons/casing 1
