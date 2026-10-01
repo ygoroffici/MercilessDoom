@@ -170,7 +170,7 @@ class MercilessWeapon : Weapon
 		double fovOfs = (120 - self.player.desiredfov) / 3.f; 
         Vector3 spos, svel;
 
-        spos = GetGlobalPlayerOffs((self.radius + xOfs - (5.0 * abs(sin(self.pitch))), self.radius + yOfs, zOfs));
+        spos = GetGlobalPlayerOffs((self.radius + xOfs - (5.0 * abs(sin(self.pitch))) + fovOfs, self.radius + yOfs, zOfs));
         svel = GetGlobalPlayerOffs((xVel, yVel, zVel), isVelocity:true);
         /* The setup for RelativeToGlobalCoords is pretty much the same as SpawnBarrelSmoke.
                 I've written a function to do those 2 things at once. 
@@ -225,6 +225,7 @@ class MercilessWeapon : Weapon
         // params.style = STYLE_Add;
         level.SpawnParticle(params);
     }
+
 
     /* Spawns smoke particles at the gun's barrel. */
 	action void MD_SpawnBarrelSmoke(int howMany = -1,

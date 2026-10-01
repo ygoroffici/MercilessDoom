@@ -38,6 +38,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             MD_FireWeapon(2, 0, -1, 7 * random(1,3));
             A_WeaponOffset(frandom[wpnoffs](-1.0, 1.0), 0, WOF_ADD|WOF_KEEPY);
             MD_SpawnBarrelSmoke(howMany:random(1,2), minsize:0.08, maxsize:0.15, sizeStep:3, startAlpha:0.9);
+            // MD_TestBarrelSmoke();
             MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2));
             A_ZoomFactor(0.98);
 
@@ -48,7 +49,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
 		// M9PF AB 1 A_WeaponOffset(0, 2.0, WOF_ADD|WOF_KEEPX);
         M9PF C 1 {
             A_ZoomFactor(1.0);
-            MD_SpawnCasings("GenericCasing", -3, -15.5, 37.5, frandom(-1,3), frandom(2,5), frandom(1.5,3.5));
+            MD_SpawnCasings("GenericCasing", -11.5, -15.5, 37.5, frandom(-1,3), frandom(2,5), frandom(1.5,3.5));
         }
         M9PF DEEFF 1 A_WeaponReady();
 		Goto Ready;
