@@ -114,7 +114,8 @@ class GenericCasing : Actor
         if( stopped ) {
             lifetimeCount++;
             if( lifetimeCount > casingLifetime ) {
-                destroy();
+                // destroy();
+                A_FadeOut(0.1);
             }
             return;
         }
