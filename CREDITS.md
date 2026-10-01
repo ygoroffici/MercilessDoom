@@ -2,7 +2,10 @@
 
 **Weapons**
 - **Pistol**: "3D Beretta M9" (https://skfb.ly/6EF8v) by Vesper 3D is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). 
+- **Super Shotgun**: "Stagecoach Shotgun" (https://skfb.ly/oqty9) by elijahcobden is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
+**Effects**
+- Empty casings sounds & sprites (for now): Beautiful Doom by Agent Ash/JekyllGrim: https://github.com/jekyllgrim/Beautiful-Doom
 
 **Below is a list of members and projects from the (UZ)Doom community which provided amazing helpful resources which helped me develop this mod, in more ways than one:**
 - **Doom Weapon Hand templates from this thread:** https://forum.zdoom.org/viewtopic.php?t=50920
