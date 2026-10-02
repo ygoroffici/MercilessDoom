@@ -154,12 +154,7 @@ class MercilessWeapon : Weapon
             return;
         }
 
-        // zOfs -= (self.player.viewz - self.pos.z) / self.player.CrouchFactor;
-        // yOfs *= invoker.WeaponScaleX; // ???
-		// double fovOfs = (120 - self.player.desiredfov) / 3.f; 
         Vector3 spos, svel;
-
-        // spos = GetGlobalPlayerOffs((self.radius + xOfs - (5.0 * abs(sin(self.pitch))) + fovOfs, self.radius + yOfs, zOfs));
         spos = GetGlobalPlayerOffs((xOfs, yOfs, zOfs));
         svel = GetGlobalPlayerOffs((xVel, yVel, zVel), isVelocity:true);
         /* The setup for RelativeToGlobalCoords is pretty much the same as SpawnBarrelSmoke.
@@ -190,7 +185,6 @@ class MercilessWeapon : Weapon
                                 )
 	{
 
-        // Relative offsets from POV:   (X: -backward/+forward, Y: -right/+left,  Z: -down/+up)
         Vector3 posofs, velofs, spos, svel;
         double rndroll;
         String smokename;
@@ -205,13 +199,9 @@ class MercilessWeapon : Weapon
             FSpawnParticleParams params;
             
             //  Setting up variables
-            // posofs = (frandom[smk](-0.8, 0.8), frandom[smk](0.1, 0.7), frandom[smk](-3.0, 2.0));
             posofs = (frandom[smk](14, 15), frandom[smk](-18, -17), frandom[smk](28.0, 33.0));
-            // posofs.z -= 10.5;
-		    // posofs.y += 15;
             velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.7, 0.7), frandom[smk](0.7, 0.9));
             
-            // spos = GetGlobalPlayerOffs((self.radius + posofs.y - (5.0 * abs(sin(self.pitch))) + fovOfs, -posofs.x, posofs.z));
             spos = GetGlobalPlayerOffs(posofs);
             svel = GetGlobalPlayerOffs(velofs, isVelocity:true);
             params.pos = spos;
@@ -243,23 +233,12 @@ class MercilessWeapon : Weapon
 	}
 
 
+
     /***************************************
           HELPER FUNCTIONS & MISC
     ***************************************/
 
-	// The smoke spawning logic is almost entirely from Project Brutality
-    //  All I did was adapt for my (current) needs and make it particle-based instead of spawning an Actor
-	static // TODO put this on another class
-    Vector3 RelativeToGlobalCoords(Vector3 startpos, Vector3 viewAngles, Vector3 offset)
-	{
-		Quat dir = Quat.FromAngles(viewAngles.x, viewAngles.y, viewAngles.z);
-		Vector3 ofs = dir * (offset.x, -offset.y, offset.z);
-
-		return level.vec3offset(startpos, ofs);
-	}
-
-
-    protected action // TODO maybe try not making this an action function?
+    protected action // maybe try not making this an action function?
     Vector3 GetGlobalPlayerOffs(Vector3 offsets, bool isVelocity = false)
     {
         if( !self.player) {
@@ -280,7 +259,7 @@ class MercilessWeapon : Weapon
             startVec = (self.pos.xy, self.player.viewz);
         }
         
-        return RelativeToGlobalCoords(startVec, viewAngles, offsets);
+        return MDUtils.RelativeToGlobalCoords(startVec, viewAngles, offsets);
     }
 
 

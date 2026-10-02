@@ -1,0 +1,20 @@
+
+class MDUtils : Object
+{
+
+    /***    Conversion from relative coords to global ones.
+     **     Credits to PB for this specific code, although I also found it on the ZDoom wiki.
+     **        +X: Forward. -X: Backward.
+     **        +Y: Left.    -Y: Right.
+     **        +Z: Up.      -Z: Down.
+     **     Y sign is inverted, so it becomes easier to understand... */
+	static
+    Vector3 RelativeToGlobalCoords(Vector3 startpos, Vector3 viewAngles, Vector3 offset)
+	{
+		Quat dir = Quat.FromAngles(viewAngles.x, viewAngles.y, viewAngles.z);
+		Vector3 ofs = dir * (offset.x, -offset.y, offset.z);
+
+		return level.vec3offset(startpos, ofs);
+	}
+    
+}
