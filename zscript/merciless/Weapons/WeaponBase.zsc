@@ -30,10 +30,12 @@ class MercilessWeapon : Weapon
     PlayerPawn playerOwner;
     double verticalRecoil;
     double horizontalRecoil;
-    
+    double recoilCrouchFactor;
+
     // Properties
     property VerticalRecoil : verticalRecoil;
     property HorizontalRecoil : horizontalRecoil;
+    property RecoilCrouchFactor : recoilCrouchFactor;
 
     Default{
         Weapon.KickBack 100;
@@ -45,6 +47,7 @@ class MercilessWeapon : Weapon
 
         MercilessWeapon.VerticalRecoil 0;
         MercilessWeapon.HorizontalRecoil 0;
+        MercilessWeapon.RecoilCrouchFactor 1;
     }
 
 
@@ -106,10 +109,10 @@ class MercilessWeapon : Weapon
         double horzSpread, double vertSpread, int numBullets, int damagePerBullet, int flags = FBF_USEAMMO|FBF_NOFLASH|FBF_NORANDOM)
     {
         if( invoker.verticalRecoil != 0 ) {
-            A_SetPitch(self.pitch - abs(invoker.verticalRecoil), SPF_FORCECLAMP);
+            A_SetPitch(self.pitch - GetRealRecoil(abs(invoker.verticalRecoil)), SPF_FORCECLAMP);
         }
         if( invoker.horizontalRecoil != 0 ) {
-            A_SetAngle(self.angle + invoker.horizontalRecoil);
+            A_SetAngle(self.angle + GetRealRecoil(invoker.horizontalRecoil));
         }
 
         //  TODO:
@@ -298,5 +301,12 @@ class MercilessWeapon : Weapon
 
         // params.style = STYLE_Add;
         level.SpawnParticle(params);
+    }
+
+
+    action
+    double GetRealRecoil(double recoil)
+    {
+        return (self.player.crouchfactor ~== 0.5) ? recoil*invoker.recoilCrouchFactor : recoil;
     }
 }
