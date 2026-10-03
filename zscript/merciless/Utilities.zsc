@@ -1,4 +1,23 @@
 
+/*
+    Mixin for broader weapon-specific functions/helpers.
+*/
+mixin class WeaponFunctions
+{
+    action bool IsHoldingAltFire()      { return self.player.buttons & BT_ALTATTACK; }
+    action bool IsHoldingPrimaryFire()  { return self.player.buttons & BT_ATTACK; }
+
+    // Returns true if the player just released button 'which'.
+    action bool JustReleased(int which) {
+        return !(player.buttons & which) && player.oldbuttons & which;
+    }
+
+    // For checking the player's preferred aiming method
+    action bool IsToggleAimMode() { 
+        return CVar.GetCvar("toggle_aim_mode", player).GetBool(); // cache this later 
+    }
+}
+
 class MDUtils : Object
 {
 

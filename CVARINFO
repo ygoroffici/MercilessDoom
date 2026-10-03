@@ -1,0 +1,2 @@
+/* user bool mdebugenabled = false; */
+user bool toggle_aim_mode = false;

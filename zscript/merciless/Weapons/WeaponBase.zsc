@@ -1,6 +1,7 @@
 
 class MercilessWeapon : Weapon
 {
+    mixin WeaponFunctions;
     // Constants
     const FLASH_LAYER = -100;
     /* Weapon Sway */
@@ -31,6 +32,8 @@ class MercilessWeapon : Weapon
     double verticalRecoil;
     double horizontalRecoil;
     double recoilCrouchFactor;
+
+    protected bool isAiming;
 
     // Properties
     property VerticalRecoil : verticalRecoil;
@@ -103,7 +106,7 @@ class MercilessWeapon : Weapon
           CUSTOM (ACTION) FUNCTIONS
     ***************************************/
 
-    // Shooting wrapper
+    // Shooting wrapper, takes into account the correct physical recoil values
     action 
     void MD_FireWeapon(
         double horzSpread, double vertSpread, int numBullets, int damagePerBullet, int flags = FBF_USEAMMO|FBF_NOFLASH|FBF_NORANDOM)
@@ -137,6 +140,38 @@ class MercilessWeapon : Weapon
     void MD_ShakeCamera(Vector3 xyz, double duration, double rollintensity = 0.5, double rollwave = 1.0, int flags = QF_RELATIVE|QF_SCALEDOWN)
     {
         A_QuakeEx(xyz.x, xyz.y, xyz.z, duration, 0, tremrad:64, sfx:"", flags:flags, rollintensity:rollintensity, rollwave:rollwave);
+    }
+
+
+    // This weaponready() takes into account the player's ADS state, for weapons that have it 
+    action
+    state MD_WeaponReady(int flags = 0)
+    {
+        if( invoker.isAiming && !IsToggleAimMode() )
+        {
+            if( (!IsHoldingAltFire() || JustReleased(BT_ALTATTACK)) )
+            {
+                MD_SetAim(false);
+                return ResolveState("AimStop");
+            }
+            flags |= WRF_NOSECONDARY; // you're holding it already
+        }
+        A_WeaponReady(flags);
+        return null;
+    }
+
+
+    // Handles the player's preferred ADS method (toggle/hold)
+    action
+    state MD_DoAltfireZoom()
+    {
+        if( IsToggleAimMode() && invoker.isAiming ) 
+        {
+            MD_SetAim(false);
+            return ResolveState("AimStop");
+        }
+        MD_SetAim(true);
+        return null;
     }
 
 
@@ -264,7 +299,7 @@ class MercilessWeapon : Weapon
         
         return MDUtils.RelativeToGlobalCoords(startVec, viewAngles, offsets);
     }
-
+    
 
     void SpawnCasingSmoke(Vector3 position, Vector3 velocity)
     {
@@ -308,5 +343,25 @@ class MercilessWeapon : Weapon
     double GetRealRecoil(double recoil)
     {
         return (self.player.crouchfactor ~== 0.5) ? recoil*invoker.recoilCrouchFactor : recoil;
+    }
+
+
+    // Helper for setting isAiming easily.
+    protected action
+    void MD_SetAim(bool value) { invoker.isAiming = value; }
+
+
+    /***************************************
+            GENERIC WEAPON STATES
+    ***************************************/
+    States
+    {
+        // Weapons shouldn't have any ADS behavior by default
+        AimBegin:
+        AimStop:
+        AimReady:
+            goto Ready;
+        AimFire:
+            goto Fire;
     }
 }
