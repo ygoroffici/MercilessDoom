@@ -17,6 +17,40 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         MercilessWeapon.VerticalRecoil 0.5;
         MercilessWeapon.HorizontalRecoil 0;
         MercilessWeapon.RecoilCrouchFactor 0;
+        MercilessWeapon.AdsFactor 1.3;
+    }
+
+
+    action
+    void MD_PistolFire()
+    {
+        double bullets, spreadX, spreadY, recoilZoomOut, offsetY, offsetX;
+        if( invoker.isAiming )
+        {
+            bullets = -1;
+            spreadX = 1.3;
+            spreadY = 0;
+            recoilZoomOut = invoker.ADSFactor - 0.02;
+            offsetY = WEAPONTOP - 3.2;
+            offsetX = frandom[wpnoffs](-1.5, 1.5);
+        }
+        else
+        {
+            bullets = -1;
+            spreadX = 2;
+            spreadY = 0;
+            recoilZoomOut = 0.98;
+            offsetY = WEAPONTOP;
+            offsetX = frandom[wpnoffs](-1.0, 1.0);
+        }
+
+        MD_FireWeapon(spreadX, spreadY, bullets, 7 * random(1,3));
+        // A_WeaponOffset(0+rndxoffs, WEAPONTOP-3.2, WOF_INTERPOLATE);
+        A_WeaponOffset(0 + offsetX, offsetY, WOF_INTERPOLATE);
+        MD_SpawnBarrelSmoke(howMany:random(1,2), minsize:0.08, maxsize:0.15, sizeStep:3, startAlpha:0.85); // change
+        MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2)); // maybe change?
+        A_ZoomFactor(recoilZoomOut);
+        A_StartSound("weapons/m9/fire", CHAN_WEAPON, CHANF_OVERLAP, pitch:frandom(0.97, 1.03)); // placeholder sound...
     }
 
 
@@ -28,23 +62,44 @@ class BerettaM9 : MercilessWeapon replaces Pistol
     Select:
         M9PS A 1 A_Raise(10);
         loop;
+
     //************ Ready states
     Ready:
         M9PS A 1 MD_WeaponReady();
         loop;
     AimReady:
-        M9PF A 1 MD_WeaponReady();
+        M9PZ D 1 MD_WeaponReady(WRF_NOBOB);
         loop;
+
     //************ Aiming stuff
     AltFire:
-        TNT1 A 0 MD_DoAltfireZoom();
+        M9PZ A 0 MD_DoAltfireZoom();
         goto AimBegin;
     AimBegin:
-        M9PF AAAA 1 A_WeaponOffset(0, -2, WOF_ADD|WOF_KEEPX);
+        M9PZ A 0 {
+            A_ZoomFactor(invoker.ADSFactor);
+            A_SetCrosshair(-1);
+            A_OverlayPivot(OverlayID(), 0.51, 0.4); // wtf
+        }
+        M9PZ A 1;
+        M9PZ BCD 1 {
+            MD_SetYOffset(WEAPONTOP-2);
+            MD_SetScale(1.15);
+            // A_WeaponOffset(0, WEAPONTOP-2, WOF_INTERPOLATE|WOF_KEEPX);
+            // A_OverlayScale(OverlayID(), 1.15, 0, WOF_INTERPOLATE);
+        }
         goto AimReady;
     AimStop:
-        TNT1 A 0 { Console.Printf("Player stopped aiming"); }
+        TNT1 A 0 A_SetCrosshair(0);
+        M9PZ DCBA 1 {
+            // A_WeaponOffset(0, WEAPONTOP, WOF_INTERPOLATE|WOF_KEEPX);
+            // A_OverlayScale(OverlayID(), 1.0, 1.0, WOF_INTERPOLATE);
+            MD_SetScale(1.0);
+            MD_SetYOffset(WEAPONTOP);
+            A_ZoomFactor(1.0);
+        }
         goto Ready;
+
     //************ Fire weapon
 	Fire:
         TNT1 A 0 { 
@@ -53,16 +108,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             }
             return ResolveState(null);
         }
-        M9PF A 1 {
-            MD_FireWeapon(2, 0, -1, 7 * random(1,3));
-            A_WeaponOffset(frandom[wpnoffs](-1.0, 1.0), 0, WOF_ADD|WOF_KEEPY);
-            MD_SpawnBarrelSmoke(howMany:random(1,2), minsize:0.08, maxsize:0.15, sizeStep:3, startAlpha:0.9);
-            MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2));
-            A_ZoomFactor(0.98);
-
-            //MD_MuzzleFlash();
-            A_StartSound("weapons/m9/fire", CHAN_WEAPON, CHANF_OVERLAP, pitch:frandom(0.97, 1.03)); // placeholder sound...
-        }
+        M9PF A 1 MD_PistolFire();
 		M9PF B 1 MD_MuzzleFlash();
         M9PF C 1 {
             A_ZoomFactor(1.0);
@@ -70,10 +116,33 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         }
         M9PF DEEFF 1 A_WeaponReady();
 		Goto Ready;
+
+        // note
+        //  i should automate all of that pivot/offset/scale changing
+         //  It's not ideal to have it hardcoded and to remind myself to reset these properties
+          //  to their supposed values. ADS/not ADS should have constant values for these properties
+           //  that should be set automatically to prevent headaches.
+        // Consider also adding different firing animations for aiming.
     AimFire:
-        M9PF B 1 A_StartSound("weapons/m9/fire", CHAN_WEAPON, CHANF_OVERLAP, pitch:frandom(0.97, 1.03));
-        M9PF B 1 A_Log("I'm shooting while ADS");
+        M9ZF A 1 MD_PistolFire();
+        M9ZF BCC 1 {
+            // A_OverlayScale(OverlayID(), 1.22, 1.22, WOF_INTERPOLATE);
+            MD_AddToScale(0.07);
+            // A_WeaponOffset(0, WEAPONTOP, WOF_INTERPOLATE);
+        }
+        M9ZF DD 1 { 
+            A_ZoomFactor(invoker.ADSFactor); 
+            // MD_WeaponReady(WRF_NOBOB); 
+            MD_SetScale();
+            // A_OverlayScale(OverlayID(), 1.15, 0, WOF_INTERPOLATE); 
+        }
+        TNT1 A 0 { 
+            MD_SetYOffset();
+            // A_WeaponOffset(0,WEAPONTOP-2, WOF_INTERPOLATE); 
+        }
         goto AimReady;
+
+    //************ Muzzleflashes
 	MuzzleFlash:
         TNT1 A 0 {
             A_AttachLight('muzzlelight', DynamicLight.PointLight, color(255, 205, 205), 

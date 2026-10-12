@@ -9,6 +9,8 @@ class MercilessWeapon : Weapon
     const SWAY_MIN_Y = 27.0;
 	const SWAY_MAX_Y = 42.0;
 
+
+
     static const String smokeSprites[] = {
         "WPNSMOKEVAR1_1",
         "WPNSMOKEVAR2_1",
@@ -34,11 +36,15 @@ class MercilessWeapon : Weapon
     double recoilCrouchFactor;
 
     protected bool isAiming;
+    protected double baselineYOffset;
+    protected double baselineScale;
 
+    meta double ADSFactor; 
     // Properties
     property VerticalRecoil : verticalRecoil;
     property HorizontalRecoil : horizontalRecoil;
     property RecoilCrouchFactor : recoilCrouchFactor;
+    property AdsFactor : ADSFactor; // might not need this
 
     Default{
         Weapon.KickBack 100;
@@ -51,6 +57,7 @@ class MercilessWeapon : Weapon
         MercilessWeapon.VerticalRecoil 0;
         MercilessWeapon.HorizontalRecoil 0;
         MercilessWeapon.RecoilCrouchFactor 1;
+        MercilessWeapon.AdsFactor 1.0;
     }
 
 
@@ -215,12 +222,12 @@ class MercilessWeapon : Weapon
     // Spawns smoke particles at the gun's barrel.
 	action 
     void MD_SpawnBarrelSmoke(int howMany = -1,
-                                int style = STYLE_Add, 
-                                double minSize = 0.2, 
-                                double maxSize = 0.4, 
-                                double sizeStep = 2,
-                                double startAlpha = 0.6
-                                )
+                            int style = STYLE_Add, 
+                            double minSize = 0.2, 
+                            double maxSize = 0.4, 
+                            double sizeStep = 2,
+                            double startAlpha = 0.6
+                            )
 	{
 
         Vector3 posofs, velofs, spos, svel;
@@ -269,6 +276,45 @@ class MercilessWeapon : Weapon
         }
 
 	}
+
+    /***************************************************
+          WEAPON INTERPOLATION / PSP MANIPULATION
+    ****************************************************/
+
+    // Sets scale while also updating baselineScale for other functions. Also applies interpolation.
+    // If scale is empty, it just resets xy scale to baselineScale.
+    action
+    void MD_SetScale(double scale = -1, int id = PSP_WEAPON)
+    {
+        if( scale < 0 ) {
+            A_OverlayScale(id, invoker.baselineScale, 0, WOF_INTERPOLATE);
+            return;
+        }
+        invoker.baselineScale = scale;
+        A_OverlayScale(id, scale, 0, WOF_INTERPOLATE);
+    }
+
+
+    // Adds howmuch to psp of id based on weapon's baselineScale.
+    action
+    void MD_AddToScale(double howmuch, int id = PSP_WEAPON)
+    {
+        A_OverlayScale(id, invoker.baselineScale+howMuch, 0, WOF_INTERPOLATE);
+    }
+
+
+    // This updates baselineYOffset while also applying weapon offsets with interpolation.
+    // Currently ignores X values. If yoffs is empty, just sets it to baselineYOffset;
+    action
+    void MD_SetYOffset(double yoffs = -1, int flags = WOF_INTERPOLATE|WOF_KEEPX)
+    {
+        if( yoffs < 0 ) {
+            A_WeaponOffset(0, invoker.baselineYOffset, flags);
+            return;
+        }
+        invoker.baselineYOffset = yoffs;
+        A_WeaponOffset(0, yoffs, flags);
+    }
 
 
 
