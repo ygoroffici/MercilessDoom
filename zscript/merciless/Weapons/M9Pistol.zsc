@@ -118,11 +118,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
 		Goto Ready;
 
         // note
-        //  i should automate all of that pivot/offset/scale changing
-         //  It's not ideal to have it hardcoded and to remind myself to reset these properties
-          //  to their supposed values. ADS/not ADS should have constant values for these properties
-           //  that should be set automatically to prevent headaches.
-        // Consider also adding different firing animations for aiming.
+        // Consider adding different firing animations for aiming.
     AimFire:
         M9ZF A 1 MD_PistolFire();
         M9ZF BCC 1 {
