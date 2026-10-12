@@ -30,7 +30,7 @@ class MercilessWeapon : Weapon
     };
 
     // Variables
-    PlayerPawn playerOwner;
+    // PlayerPawn playerOwner;
     double verticalRecoil;
     double horizontalRecoil;
     double recoilCrouchFactor;
@@ -65,40 +65,41 @@ class MercilessWeapon : Weapon
            VIRTUAL FUNCTION OVERRIDES
     ****************************************/
     
+    PlayerInfo playerOwner;
+    double ypitch;
     override void DoEffect()
     {
         Super.DoEffect();
         // Weapon Sway code below was taken from Diamond Dragon
         //  and was first made by Nash Muhandes, adapted & edited for my use.
-        if( owner && owner is "PlayerPawn" )
+        if( owner && owner.player )
         {
-            //  TODO
-            //      Make this sway configurable and also
-            //      add horizontal sway obviously.
             if( !playerOwner ) {
-                playerOwner = PlayerPawn(owner);
+                playerOwner = owner.player;
             }
 
-            let psp = playerOwner.player.psprites;
-            let wep = playerOwner.player.ReadyWeapon;
-            if( !psp || !wep ) return;
+            let wep = playerOwner.ReadyWeapon;
+            if( !wep || !(wep is "MercilessWeapon") ) return;
+            
+            let psp = playerOwner.psprites;
+            if( !psp ) return;
 
             // vertical offset
-            double ypitch = -playerOwner.pitch;
-            ypitch = SWAY_SENSITIVITY_Y * ypitch / 90.0;
+            // ypitch = -playerOwner.pitch;
+            ypitch = SWAY_SENSITIVITY_Y * (-playerOwner.mo.pitch) / 90.0;
 
             bool bCanSway = (
-                        (playerOwner.player.WeaponState & WF_WEAPONREADY)
-                        || (playerOwner.player.WeaponState & WF_WEAPONREADYALT)
-                        || (playerOwner.player.WeaponState & WF_WEAPONRELOADOK)
-                        || (playerOwner.player.WeaponState & WF_WEAPONZOOMOK)
-                        || (playerOwner.player.WeaponState & WF_WEAPONSWITCHOK)
+                        (playerOwner.WeaponState & WF_WEAPONREADY)
+                        || (playerOwner.WeaponState & WF_WEAPONREADYALT)
+                        || (playerOwner.WeaponState & WF_WEAPONRELOADOK)
+                        || (playerOwner.WeaponState & WF_WEAPONZOOMOK)
+                        || (playerOwner.WeaponState & WF_WEAPONSWITCHOK)
                     );
 
             // main offset logic
             if( psp && bCanSway )
             {
-                psp.y = ypitch + 32;
+                psp.y = ypitch + WEAPONTOP;
 
                 // add jump velocity to Y
                 // psp.y += (plr.Vel.Z * 2);
