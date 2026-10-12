@@ -1,3 +1,13 @@
+// NoTrim definitions
+NoTrim "M9PZA0"
+NoTrim "M9PZB0" 
+NoTrim "M9PZC0"
+NoTrim "M9PZD0"
+NoTrim "M9ZFA0"
+NoTrim "M9ZFB0"
+NoTrim "M9ZFC0"
+NoTrim "M9ZFD0"
+
 /*********************************************************************************/
 /*****************  Messy Part for the Smoke Particle Textures  *****************/
 /*********************************************************************************/
