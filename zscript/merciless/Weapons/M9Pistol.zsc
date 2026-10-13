@@ -34,9 +34,9 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         double bullets, spreadX, spreadY, recoilZoomOut, heightOfs, smokeSize, smokeAlpha;
         if( invoker.isAiming )
         {
-            bullets = -1;
-            spreadX = 1.3;
-            spreadY = 0;
+            bullets = 1;
+            spreadX = 1.35;
+            spreadY = 0; // not like these will make any difference
             recoilZoomOut = invoker.ADSFactor - 0.02;
             heightOfs = 8;
             smokeSize = frandom[smk](0.10, 0.17);
@@ -44,9 +44,9 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         }
         else
         {
-            bullets = -1;
-            spreadX = 2;
-            spreadY = 0;
+            bullets = 1;
+            spreadX = 2.35;
+            spreadY = 1;
             recoilZoomOut = 0.98;
             heightOfs = 0;
             smokeSize = frandom[smk](0.08, 0.15);
@@ -54,6 +54,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         }
 
         MD_FireWeapon(spreadX, spreadY, bullets, 7 * random(1,3));
+        self.player.refire++;
         MD_SpawnBarrelSmoke(random(1,2), size:smokeSize, sizeStep:3, startAlpha:smokeAlpha, heightOfs);
         MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2)); // maybe change?
         A_ZoomFactor(recoilZoomOut);

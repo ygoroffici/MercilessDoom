@@ -154,9 +154,11 @@ class MercilessWeapon : Weapon
 
 
     // This weaponready() takes into account the player's ADS state, for weapons that have it 
+    // It also resets the player's refire if it's above 0.
     action
     state MD_WeaponReady(int flags = 0)
     {
+        if( player.refire ) player.refire = 0;
         if( invoker.isAiming && !IsToggleAimMode() )
         {
             if( (!IsHoldingAltFire() || JustReleased(BT_ALTATTACK)) )
