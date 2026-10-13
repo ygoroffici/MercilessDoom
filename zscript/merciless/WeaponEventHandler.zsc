@@ -37,7 +37,7 @@ class WeaponEventHandler : EventHandler
             if( weapon.GetIsAiming() ) {
                 addHeight = weapon.tracerADSHeightOffs;
             }
-            let correctZOffset = (plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor) + addHeight;
+            let correctZOffset = plr.height * 0.5 - plr.floorclip + (plr.AttackZOffset + addHeight) * plr.player.crouchFactor;
                 
             FLineTraceData tr;
             plr.LineTrace(
