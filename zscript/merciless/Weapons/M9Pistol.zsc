@@ -24,15 +24,13 @@ class BerettaM9 : MercilessWeapon replaces Pistol
     action
     void MD_PistolFire()
     {
-        double bullets, spreadX, spreadY, recoilZoomOut, offsetY, offsetX, heightOfs;
+        double bullets, spreadX, spreadY, recoilZoomOut, heightOfs;
         if( invoker.isAiming )
         {
             bullets = -1;
             spreadX = 1.3;
             spreadY = 0;
             recoilZoomOut = invoker.ADSFactor - 0.02;
-            offsetY = WEAPONTOP - 3.2;
-            offsetX = frandom[wpnoffs](-1.5, 1.5);
             heightOfs = 9;
         }
         else
@@ -41,14 +39,10 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             spreadX = 2;
             spreadY = 0;
             recoilZoomOut = 0.98;
-            offsetY = WEAPONTOP;
-            offsetX = frandom[wpnoffs](-1.0, 1.0);
             heightOfs = 0;
         }
 
         MD_FireWeapon(spreadX, spreadY, bullets, 7 * random(1,3));
-        // I think weapon "animations" shouldn't be done here, but directly on the states themselves...
-        A_WeaponOffset(0 + offsetX, offsetY, WOF_INTERPOLATE);
         MD_SpawnBarrelSmoke(random(1,2), size:frandom[smk](0.08, 0.15), sizeStep:3, startAlpha:0.85, heightOfs);
         MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2)); // maybe change?
         A_ZoomFactor(recoilZoomOut);
@@ -106,7 +100,10 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             }
             return ResolveState(null);
         }
-        M9PF A 1 MD_PistolFire();
+        M9PF A 1 {
+            MD_PistolFire();
+            A_WeaponOffset(0 + frandom[wpnoffs](-1.0, 1.0), WEAPONTOP, WOF_INTERPOLATE|WOF_KEEPY);
+        }
 		M9PF B 1 MD_MuzzleFlash();
         M9PF C 1 {
             A_ZoomFactor(1.0);
@@ -115,7 +112,10 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         M9PF DEEFF 1 A_WeaponReady();
 		Goto Ready;
     AimFire:
-        M9ZF A 1 MD_PistolFire();
+        M9ZF A 1 { 
+            MD_PistolFire();
+            A_WeaponOffset(0 + frandom[wpnoffs](-1.5, 1.5), WEAPONTOP - 3.2, WOF_INTERPOLATE);
+        }
         M9ZF B 1 {
             MD_MuzzleFlash(-25.5, 1.75, 1.2);
         }
@@ -128,6 +128,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             // MD_WeaponReady(WRF_NOBOB); 
         }
         TNT1 A 0 { 
+            // Reset Y offset cuz WRF_NOBOB doesnt do it
             MD_SetYOffset();
         }
         goto AimReady;
