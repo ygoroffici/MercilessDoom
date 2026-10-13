@@ -35,5 +35,12 @@ class MDUtils : Object
 
 		return level.vec3offset(startpos, ofs);
 	}
+
+
+    // Linear interpolation.
+    static
+	float lerp(float v0, float v1, float t) {
+		return (1 - t) * v0 + t * v1;
+	}
     
 }

@@ -21,6 +21,13 @@ class BerettaM9 : MercilessWeapon replaces Pistol
     }
 
 
+    override
+    void PostBeginPlay()
+    {
+        super.PostBeginPlay();
+        self.tracerADSHeightOffs = 4.5;
+    }
+
     action
     void MD_PistolFire()
     {

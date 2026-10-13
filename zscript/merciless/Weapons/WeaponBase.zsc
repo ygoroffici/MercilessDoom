@@ -31,6 +31,7 @@ class MercilessWeapon : Weapon
     double verticalRecoil;
     double horizontalRecoil;
     double recoilCrouchFactor;
+    double tracerADSHeightOffs; // Bullet tracer Z offset when ADS
 
     protected bool isAiming;
     protected double baselineYOffset;
@@ -389,9 +390,12 @@ class MercilessWeapon : Weapon
 
     action
     double GetRealRecoil(double recoil)
-    {
+{
         return (self.player.crouchfactor ~== 0.5) ? recoil*invoker.recoilCrouchFactor : recoil;
     }
+
+    // This getter should be used to get the value of isAiming outside of child classes.
+    bool GetIsAiming() { return self.isAiming; }
 
 
     /***************************************

@@ -28,7 +28,16 @@ class WeaponEventHandler : EventHandler
         {
             let plr = PlayerPawn(e.thing);
          
-            let correctZOffset = plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor;
+            if( !(plr.player.ReadyWeapon is "MercilessWeapon") ) {
+                return false;
+            }
+            
+            MercilessWeapon weapon = MercilessWeapon(plr.player.ReadyWeapon);
+            let addHeight = 0;
+            if( weapon.GetIsAiming() ) {
+                addHeight = weapon.tracerADSHeightOffs;
+            }
+            let correctZOffset = (plr.height * 0.5 - plr.floorclip + plr.AttackZOffset * plr.player.crouchFactor) + addHeight;
                 
             FLineTraceData tr;
             plr.LineTrace(
@@ -67,9 +76,9 @@ class WeaponEventHandler : EventHandler
         {
             fp.color1 = _colors[clamp(i * _colors.Size(), 0, _colors.Size() -1 )];
 
-            fp.pos.x = lerp(startPos.x, particleEnd.x, i);
-            fp.pos.y = lerp(startPos.y, particleEnd.y, i);
-            fp.pos.z = lerp(startPos.z, particleEnd.z, i);
+            fp.pos.x = MDUtils.lerp(startPos.x, particleEnd.x, i);
+            fp.pos.y = MDUtils.lerp(startPos.y, particleEnd.y, i);
+            fp.pos.z = MDUtils.lerp(startPos.z, particleEnd.z, i);
 
             fp.vel = velocity;
             fp.startalpha = 1.0;
@@ -83,8 +92,4 @@ class WeaponEventHandler : EventHandler
         }
     }
 
-
-	float lerp(float v0, float v1, float t) {
-		return (1 - t) * v0 + t * v1;
-	}
 }
