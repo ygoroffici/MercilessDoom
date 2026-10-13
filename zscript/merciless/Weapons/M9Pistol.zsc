@@ -24,7 +24,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
     action
     void MD_PistolFire()
     {
-        double bullets, spreadX, spreadY, recoilZoomOut, offsetY, offsetX;
+        double bullets, spreadX, spreadY, recoilZoomOut, offsetY, offsetX, heightOfs;
         if( invoker.isAiming )
         {
             bullets = -1;
@@ -33,6 +33,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             recoilZoomOut = invoker.ADSFactor - 0.02;
             offsetY = WEAPONTOP - 3.2;
             offsetX = frandom[wpnoffs](-1.5, 1.5);
+            heightOfs = 9;
         }
         else
         {
@@ -42,12 +43,13 @@ class BerettaM9 : MercilessWeapon replaces Pistol
             recoilZoomOut = 0.98;
             offsetY = WEAPONTOP;
             offsetX = frandom[wpnoffs](-1.0, 1.0);
+            heightOfs = 0;
         }
 
         MD_FireWeapon(spreadX, spreadY, bullets, 7 * random(1,3));
-        // A_WeaponOffset(0+rndxoffs, WEAPONTOP-3.2, WOF_INTERPOLATE);
+        // I think weapon "animations" shouldn't be done here, but directly on the states themselves...
         A_WeaponOffset(0 + offsetX, offsetY, WOF_INTERPOLATE);
-        MD_SpawnBarrelSmoke(howMany:random(1,2), minsize:0.08, maxsize:0.15, sizeStep:3, startAlpha:0.85); // change
+        MD_SpawnBarrelSmoke(random(1,2), size:frandom[smk](0.08, 0.15), sizeStep:3, startAlpha:0.85, heightOfs);
         MD_ShakeCamera((0, 0.2, 0.4), 5, frandom[shk](0.0, 1.2)); // maybe change?
         A_ZoomFactor(recoilZoomOut);
         A_StartSound("weapons/m9/fire", CHAN_WEAPON, CHANF_OVERLAP, pitch:frandom(0.97, 1.03)); // placeholder sound...
@@ -63,7 +65,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         M9PS A 1 A_Raise(10);
         loop;
 
-    //************ Ready states
+    //************************ READY STATES ************
     Ready:
         M9PS A 1 MD_WeaponReady();
         loop;
@@ -71,7 +73,7 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         M9PZ D 1 MD_WeaponReady(WRF_NOBOB);
         loop;
 
-    //************ Aiming stuff
+    //************************ AIMING DOWN SIGHTS ************
     AltFire:
         M9PZ A 0 MD_DoAltfireZoom();
         goto AimBegin;
@@ -85,22 +87,18 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         M9PZ BCD 1 {
             MD_SetYOffset(WEAPONTOP-2);
             MD_SetScale(1.15);
-            // A_WeaponOffset(0, WEAPONTOP-2, WOF_INTERPOLATE|WOF_KEEPX);
-            // A_OverlayScale(OverlayID(), 1.15, 0, WOF_INTERPOLATE);
         }
         goto AimReady;
     AimStop:
-        TNT1 A 0 A_SetCrosshair(0);
         M9PZ DCBA 1 {
-            // A_WeaponOffset(0, WEAPONTOP, WOF_INTERPOLATE|WOF_KEEPX);
-            // A_OverlayScale(OverlayID(), 1.0, 1.0, WOF_INTERPOLATE);
             MD_SetScale(1.0);
             MD_SetYOffset(WEAPONTOP);
+            A_SetCrosshair(0);
             A_ZoomFactor(1.0);
         }
         goto Ready;
 
-    //************ Fire weapon
+    //************************ FIRING STATES ************
 	Fire:
         TNT1 A 0 { 
             if( invoker.isAiming ) {
@@ -116,29 +114,25 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         }
         M9PF DEEFF 1 A_WeaponReady();
 		Goto Ready;
-
-        // note
-        // Consider adding different firing animations for aiming.
     AimFire:
         M9ZF A 1 MD_PistolFire();
-        M9ZF BCC 1 {
-            // A_OverlayScale(OverlayID(), 1.22, 1.22, WOF_INTERPOLATE);
+        M9ZF B 1 {
+            MD_MuzzleFlash(-30);
+        }
+        M9ZF CC 1 {
             MD_AddToScale(0.07);
-            // A_WeaponOffset(0, WEAPONTOP, WOF_INTERPOLATE);
         }
         M9ZF DD 1 { 
             A_ZoomFactor(invoker.ADSFactor); 
-            // MD_WeaponReady(WRF_NOBOB); 
             MD_SetScale();
-            // A_OverlayScale(OverlayID(), 1.15, 0, WOF_INTERPOLATE); 
+            // MD_WeaponReady(WRF_NOBOB); 
         }
         TNT1 A 0 { 
             MD_SetYOffset();
-            // A_WeaponOffset(0,WEAPONTOP-2, WOF_INTERPOLATE); 
         }
         goto AimReady;
 
-    //************ Muzzleflashes
+    //************************ MUZZLE FLASHES ************
 	MuzzleFlash:
         TNT1 A 0 {
             A_AttachLight('muzzlelight', DynamicLight.PointLight, color(255, 205, 205), 

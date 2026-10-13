@@ -9,8 +9,6 @@ class MercilessWeapon : Weapon
     const SWAY_MIN_Y = 27.0;
 	const SWAY_MAX_Y = 42.0;
 
-
-
     static const String smokeSprites[] = {
         "WPNSMOKEVAR1_1",
         "WPNSMOKEVAR2_1",
@@ -30,7 +28,6 @@ class MercilessWeapon : Weapon
     };
 
     // Variables
-    // PlayerPawn playerOwner;
     double verticalRecoil;
     double horizontalRecoil;
     double recoilCrouchFactor;
@@ -134,12 +131,13 @@ class MercilessWeapon : Weapon
 
     // Standard muzzleflash creation for weapons
     action 
-    void MD_MuzzleFlash(int renderstyle = STYLE_Add)
+    void MD_MuzzleFlash(double heightOfs = 0.0, int renderstyle = STYLE_Add)
     {
         A_Overlay(invoker.FLASH_LAYER,            "MuzzleFlash");
         A_OverlayFlags(invoker.FLASH_LAYER,       PSPF_RENDERSTYLE|PSPF_ALPHA, set:true);
         A_OverlayRenderstyle(invoker.FLASH_LAYER, renderstyle);
         A_OverlayAlpha(invoker.FLASH_LAYER,       0.5);
+        A_OverlayOffset(invoker.FLASH_LAYER,      0, heightOfs, WOF_ADD);
     }
 
 
@@ -223,11 +221,11 @@ class MercilessWeapon : Weapon
     // Spawns smoke particles at the gun's barrel.
 	action 
     void MD_SpawnBarrelSmoke(int howMany = -1,
-                            int style = STYLE_Add, 
-                            double minSize = 0.2, 
-                            double maxSize = 0.4, 
+                            double size = 0.3,
                             double sizeStep = 2,
-                            double startAlpha = 0.6
+                            double startAlpha = 0.6,
+                            double heightOffs = 0.0,
+                            int style = STYLE_Add
                             )
 	{
 
@@ -245,7 +243,7 @@ class MercilessWeapon : Weapon
             FSpawnParticleParams params;
             
             //  Setting up variables
-            posofs = (frandom[smk](14, 15), frandom[smk](-18, -17), frandom[smk](28.0, 33.0));
+            posofs = (frandom[smk](14, 15), frandom[smk](-18, -17), heightOffs+frandom[smk](28.0, 33.0));
             velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.7, 0.7), frandom[smk](0.7, 0.9));
             
             spos = GetGlobalPlayerOffs(posofs);
@@ -271,7 +269,7 @@ class MercilessWeapon : Weapon
             params.texture = TexMan.CheckForTexture(smokename);
             int w, h;
             [w, h] = TexMan.GetSize(params.texture);
-            params.size = h * (frandom[smk](minSize, maxSize));
+            params.size = h * size;
 
             level.SpawnParticle(params);
         }
@@ -307,7 +305,7 @@ class MercilessWeapon : Weapon
     // This updates baselineYOffset while also applying weapon offsets with interpolation.
     // Currently ignores X values. If yoffs is empty, just sets it to baselineYOffset;
     action
-    void MD_SetYOffset(double yoffs = -1, int flags = WOF_INTERPOLATE|WOF_KEEPX)
+    void MD_SetYOffset(double yoffs = -1, int flags = WOF_INTERPOLATE)
     {
         if( yoffs < 0 ) {
             A_WeaponOffset(0, invoker.baselineYOffset, flags);
