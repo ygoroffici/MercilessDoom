@@ -157,7 +157,7 @@ class MercilessWeapon : Weapon
         {
             if( (!IsHoldingAltFire() || JustReleased(BT_ALTATTACK)) )
             {
-                MD_SetAim(false);
+                invoker.isAiming = false;
                 return ResolveState("AimStop");
             }
             flags |= WRF_NOSECONDARY; // you're holding it already
@@ -173,10 +173,10 @@ class MercilessWeapon : Weapon
     {
         if( IsToggleAimMode() && invoker.isAiming ) 
         {
-            MD_SetAim(false);
+            invoker.isAiming = false;
             return ResolveState("AimStop");
         }
-        MD_SetAim(true);
+        invoker.isAiming = true;
         return null;
     }
 
@@ -389,11 +389,6 @@ class MercilessWeapon : Weapon
     {
         return (self.player.crouchfactor ~== 0.5) ? recoil*invoker.recoilCrouchFactor : recoil;
     }
-
-
-    // Helper for setting isAiming easily.
-    protected action
-    void MD_SetAim(bool value) { invoker.isAiming = value; }
 
 
     /***************************************
