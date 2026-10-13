@@ -131,13 +131,16 @@ class MercilessWeapon : Weapon
 
     // Standard muzzleflash creation for weapons
     action 
-    void MD_MuzzleFlash(double heightOfs = 0.0, int renderstyle = STYLE_Add)
+    void MD_MuzzleFlash(double heightOfs = 0.0, double xScaleFactor = 1.0, double yScaleFactor = 1.0, int renderstyle = STYLE_Add)
     {
         A_Overlay(invoker.FLASH_LAYER,            "MuzzleFlash");
         A_OverlayFlags(invoker.FLASH_LAYER,       PSPF_RENDERSTYLE|PSPF_ALPHA, set:true);
         A_OverlayRenderstyle(invoker.FLASH_LAYER, renderstyle);
         A_OverlayAlpha(invoker.FLASH_LAYER,       0.5);
+
         A_OverlayOffset(invoker.FLASH_LAYER,      0, heightOfs, WOF_ADD);
+        A_OverlayPivot(invoker.FLASH_LAYER);
+        A_OverlayScale(invoker.FLASH_LAYER, xScaleFactor, yScaleFactor);
     }
 
 
