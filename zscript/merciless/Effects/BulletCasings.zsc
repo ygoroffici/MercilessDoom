@@ -34,7 +34,7 @@ class GenericCasing : Actor
 		Height 2;
 		Radius 2;
 		Speed 2;
-		Scale 0.1;
+		Scale 0.08;
 		Mass 4;
 		BounceSound "weapons/casing";
 		BounceType "Doom";
