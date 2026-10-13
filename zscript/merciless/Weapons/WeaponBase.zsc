@@ -390,7 +390,7 @@ class MercilessWeapon : Weapon
 
     action
     double GetRealRecoil(double recoil)
-{
+    {
         return (self.player.crouchfactor ~== 0.5) ? recoil*invoker.recoilCrouchFactor : recoil;
     }
 
