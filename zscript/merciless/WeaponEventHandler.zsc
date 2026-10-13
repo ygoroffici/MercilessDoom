@@ -6,16 +6,18 @@
 class WeaponEventHandler : EventHandler
 {
 	static const color _colors[] = {
-		"9b 5b 13",
-		"af 7b 1f",
-		"c3 9b 2f",
-		"c3 9b 2f" /* appears twice so a segment of this color is longer
+		"89 00 00",
+		"89 00 00",
+        "a5 4a 00",
+		"b7 8c 00",
+		"e0 cb 53",
+		"e0 cb 53" /* appears twice so a segment of this color is longer
 					than the others. */
 	};
 
-	const TRACERSCALE		= 4.0;
+	const TRACERSCALE		= 3.0;
 	const TRACERSTEP		= 0.01;
-    const TRACERLENGTH      = 90;
+    const TRACERLENGTH      = 80;
     const TRACERSPEED       = 360;
 
     const DISTANCE_THRESHOLD = 2000; // beyond this, the tracers get a fixed-tic lifetime

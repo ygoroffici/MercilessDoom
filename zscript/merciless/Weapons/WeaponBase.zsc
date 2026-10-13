@@ -47,10 +47,10 @@ class MercilessWeapon : Weapon
     Default{
         Weapon.KickBack 100;
 
-        Weapon.BobRangeY 0.75;
-        Weapon.BobRangeX 0.8;
-        Weapon.BobStyle "Inverse";
-        Weapon.BobSpeed 1.3;
+        Weapon.BobRangeY 0.35;
+        Weapon.BobRangeX 0.55;
+        Weapon.BobStyle "InverseSmooth";
+        Weapon.BobSpeed 1.5;
 
         MercilessWeapon.VerticalRecoil 0;
         MercilessWeapon.HorizontalRecoil 0;
@@ -65,7 +65,8 @@ class MercilessWeapon : Weapon
     
     PlayerInfo playerOwner;
     double ypitch;
-    override void DoEffect()
+    override 
+    void DoEffect()
     {
         Super.DoEffect();
         // Weapon Sway code below was taken from Diamond Dragon
@@ -83,7 +84,6 @@ class MercilessWeapon : Weapon
             if( !psp ) return;
 
             // vertical offset
-            // ypitch = -playerOwner.pitch;
             ypitch = SWAY_SENSITIVITY_Y * (-playerOwner.mo.pitch) / 90.0;
 
             bool bCanSway = (
@@ -106,6 +106,13 @@ class MercilessWeapon : Weapon
         }
     }
 
+
+    override
+    void PostBeginPlay()
+    {
+        super.PostBeginPlay();
+        self.baselineScale = 1.0;
+    }
 
 
     /***************************************
@@ -137,7 +144,7 @@ class MercilessWeapon : Weapon
         A_Overlay(invoker.FLASH_LAYER,            "MuzzleFlash");
         A_OverlayFlags(invoker.FLASH_LAYER,       PSPF_RENDERSTYLE|PSPF_ALPHA, set:true);
         A_OverlayRenderstyle(invoker.FLASH_LAYER, renderstyle);
-        A_OverlayAlpha(invoker.FLASH_LAYER,       0.5);
+        A_OverlayAlpha(invoker.FLASH_LAYER,       0.8);
 
         A_OverlayOffset(invoker.FLASH_LAYER,      0, heightOfs, WOF_ADD);
         A_OverlayPivot(invoker.FLASH_LAYER);
@@ -231,7 +238,7 @@ class MercilessWeapon : Weapon
                             double sizeStep = 2,
                             double startAlpha = 0.6,
                             double heightOffs = 0.0,
-                            int style = STYLE_Add
+                            int style = STYLE_Translucent
                             )
 	{
 
@@ -249,8 +256,8 @@ class MercilessWeapon : Weapon
             FSpawnParticleParams params;
             
             //  Setting up variables
-            posofs = (frandom[smk](14, 15), frandom[smk](-18, -17), heightOffs+frandom[smk](28.0, 33.0));
-            velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.7, 0.7), frandom[smk](0.7, 0.9));
+            posofs = (frandom[smk](14, 15), frandom[smk](-18, -17), heightOffs+frandom[smk](29.0, 34.0));
+            velofs = (frandom[smk](-0.5, 0.0), frandom[smk](-0.5, 0.5), frandom[smk](0.75, 1.0));
             
             spos = GetGlobalPlayerOffs(posofs);
             svel = GetGlobalPlayerOffs(velofs, isVelocity:true);
@@ -259,11 +266,11 @@ class MercilessWeapon : Weapon
 
             //  Other basic parameters
             params.style = style;
-            params.lifetime = 9; // enough for the smokes
+            params.lifetime = 11; // enough for the smokes
 
             params.flags = SPF_ROLL|SPF_ROLLCENTER|SPF_LOCAL_ANIM;
-            params.startroll = 90+frandom[smk](-5, 5);
-            params.rollvel = (velofs.y*1.25)*-1;
+            params.startroll = 90+frandom[smk](-3, 3);
+            params.rollvel = (velofs.y*1.15)*-1;
 
             params.startalpha = startAlpha;
             params.fadestep = -1;
@@ -370,7 +377,7 @@ class MercilessWeapon : Weapon
         velocity.z = rndz;
         params.vel = velocity;
         params.lifetime = 6;
-        params.startalpha = 1.0;
+        params.startalpha = 0.85;
         params.fadestep = -1;
         params.sizestep = frandom[smk](0.5, 1.2);
         
@@ -379,13 +386,13 @@ class MercilessWeapon : Weapon
         params.texture = TexMan.CheckForTexture(smok);
         int w, h;
         [w, h] = TexMan.GetSize(params.texture);
-        params.size = h * 0.05;
+        params.size = h * 0.07;
         
         params.flags = SPF_ROLL|SPF_ROLLCENTER;
         params.startroll = 135 + frandom[smk](-5,5);
         params.rollvel = velocity.y * (frandom[smk](5,6) * randompick[smk](-1,1));
 
-        // params.style = STYLE_Add;
+        params.style = STYLE_Translucent;
         level.SpawnParticle(params);
     }
 
