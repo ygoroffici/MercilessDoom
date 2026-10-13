@@ -44,8 +44,8 @@ class BerettaM9 : MercilessWeapon replaces Pistol
         }
         else
         {
-            bullets = 1;
-            spreadX = 2.35;
+            bullets = -1;
+            spreadX = 2.3;
             spreadY = 1;
             recoilZoomOut = 0.98;
             heightOfs = 0;
